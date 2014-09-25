@@ -34,7 +34,7 @@ class ActionRunner
       metadata_file = File.join(pattern_dir, 'metadata.yml')
       if File.exist?(metadata_file) and YAML.load_file(metadata_file)['type'] == type
         @logger.info("execute pattern [#{pattern_dir}]")
-        result = system("cd #{pattern_dir}; ./execute_pattern.sh")
+        result = system("cd #{pattern_dir}; ./execute_pattern.sh #{ENV['SERF_TAG_ROLE']} #{ENV['SERF_USER_EVENT']}")
         if result
           @logger.info("executed successfully.")
         else
