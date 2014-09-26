@@ -31,14 +31,13 @@ class ActionRunner
   end
 
   def execute_pre_configure
-    if ENV['SERF_USER_EVENT'] == 'configure'
-      @logger.info('execute pre-configure.')
-      pre_configure_result = system("cd #{BIN_DIR}; ./configure.sh")
-      if pre_configure_result
-        @logger.info('pre-configure executed successfully.')
-      else
-        fail
-      end
+    return unless ENV['SERF_USER_EVENT'] != 'configure'
+    @logger.info('execute pre-configure.')
+    pre_configure_result = system("cd #{BIN_DIR}; ./configure.sh")
+    if pre_configure_result
+      @logger.info('pre-configure executed successfully.')
+    else
+      fail
     end
   end
 
