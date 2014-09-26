@@ -1,4 +1,4 @@
-#!/bin/sh
+# -*- coding: utf-8 -*-
 # Copyright 2014 TIS Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-CONDUCTOR_DIR="/opt/cloudconductor"
-CONFIG_DIR="${CONDUCTOR_DIR}/etc"
-TMP_DIR="${CONDUCTOR_DIR}/tmp"
-LOG_DIR="${TMP_DIR}/logs"
-FILE_CACHE_DIR="${TMP_DIR}/cache"
-
-mkdir -p ${TMP_DIR}
-mkdir -p ${LOG_DIR}
-mkdir -p ${FILE_CACHE_DIR}
-
-cd ${CONFIG_DIR}
-berks vendor ${TMP_DIR}/cookbooks
-cd ${CONDUCTOR_DIR}
-chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+module CloudConductor
+end
