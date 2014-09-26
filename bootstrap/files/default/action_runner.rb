@@ -20,6 +20,7 @@ require 'yaml'
 
 class ActionRunner
   ROOT_DIR = '/opt/cloudconductor'
+  BIN_DIR = File.join(ROOT_DIR, 'bin')
   LOG_DIR = File.join(ROOT_DIR, 'tmp/logs')
   LOG_FILE = File.join(LOG_DIR, 'action_runner.log')
   PATTERNS_ROOT_DIR = File.join(ROOT_DIR, 'patterns')
@@ -27,6 +28,18 @@ class ActionRunner
   def initialize
     FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
     @logger = Logger.new(LOG_FILE)
+  end
+
+  def execute_pre_configure
+    if ENV['SERF_USER_EVENT'] == 'configure'
+      @logger.info('execute pre-configure.')
+      pre_configure_result = system("cd #{BIN_DIR}; ./configure.sh")
+      if pre_configure_result
+        @logger.info('pre-configure executed successfully.')
+      else
+        fail
+      end
+    end
   end
 
   def execute_pattern(type)
@@ -44,5 +57,7 @@ class ActionRunner
   end
 end
 
-ActionRunner.new.execute_pattern('platform')
-ActionRunner.new.execute_pattern('optional')
+action_runner = ActionRunner.new
+action_runner.execute_pre_configure
+action_runner.execute_pattern('platform')
+action_runner.execute_pattern('optional')
