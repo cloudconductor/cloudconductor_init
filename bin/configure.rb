@@ -31,11 +31,11 @@ class PreConfigureRunner
 
   def add_server
     parameters = Consul::ConsulUtil.read_parameters
-    hostname, host_info = Serf::SerfUtil.get_host_info
+    hostname, host_info = Serf::SerfUtil.host_info
     server_info = {
       cloudconductor: {
         servers: {
-          hostname => host_info          
+          hostname => host_info
         }
       }
     }

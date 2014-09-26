@@ -26,18 +26,14 @@ module Consul
         response_hash = JSON.parse(response, symbolize_names: true).first
         parameters_json = Base64.decode64(response_hash[:Value])
         parameters = JSON.parse(parameters_json, symbolize_names: true)
-      rescue => exception
-        parameters = {} 
+      rescue
+        parameters = {}
       end
       parameters
     end
 
     def self.update_parameters(parameters)
-      begin
-        RestClient.put(CONSUL_KVS_PARAMETERS_URL, parameters.to_json)
-      rescue => exception
-        fail
-      end
+      RestClient.put(CONSUL_KVS_PARAMETERS_URL, parameters.to_json)
     end
   end
 end

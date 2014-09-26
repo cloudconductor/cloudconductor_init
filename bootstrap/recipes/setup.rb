@@ -10,9 +10,7 @@ serf_helper = SerfHelper.new self
 template node['serf']['agent']['event_handlers'].first do
   source 'event-handler.erb'
   mode 0755
-  variables({
-    event_handlers_directory: serf_helper.getEventHandlersDirectory
-  })
+  variables event_handlers_directory: serf_helper.getEventHandlersDirectory
 end
 
 cookbook_file "#{serf_helper.getEventHandlersDirectory}/action_runner.rb" do
@@ -30,12 +28,12 @@ r.cookbook 'bootstrap'
 # delete 70-persistent-net.rules extra lines
 ruby_block 'delete 70-persistent-net.rules extra line' do
   block do
-    _file = Chef::Util::FileEdit.new('/etc/udev/rules.d/70-persistent-net.rules')
-    _file.search_file_replace_line('^SUBSYSTEM.*', '')
-    _file.search_file_replace_line('^# PCI device .*', '')
-    _file.write_file
+    file = Chef::Util::FileEdit.new('/etc/udev/rules.d/70-persistent-net.rules')
+    file.search_file_replace_line('^SUBSYSTEM.*', '')
+    file.search_file_replace_line('^# PCI device .*', '')
+    file.write_file
   end
-  only_if {File.exist?('/etc/udev/rules.d/70-persistent-net.rules')}
+  only_if { File.exist?('/etc/udev/rules.d/70-persistent-net.rules') }
 end
 
 # delete consul data
@@ -66,9 +64,9 @@ git "/opt/cloudconductor/patterns/#{platform_pattern_name}" do
 end
 
 # TODO: setup consul services information of platform pattern
-#Dir[ "/opt/cloudconductor/patterns/#{platform_pattern_name}/services/**/*" ].each do |service_file|
-#  file "#{node['consul']['config_dir']}/#{Pathname.new(service_file).basename}" do
-#    content { IO.read(service_file).read }
-#    action :create
-#  end if File.file?(service_file)
-#end
+# Dir[ "/opt/cloudconductor/patterns/#{platform_pattern_name}/services/**/*" ].each do |service_file|
+#   file "#{node['consul']['config_dir']}/#{Pathname.new(service_file).basename}" do
+#     content { IO.read(service_file).read }
+#     action :create
+#   end if File.file?(service_file)
+# end

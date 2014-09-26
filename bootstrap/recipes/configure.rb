@@ -1,7 +1,7 @@
 bootstrap_helper = BootstrapHelper.new(self)
 
 # checkout optional patterns
-bootstrap_helper.get_optional_patterns.each do |pattern|
+bootstrap_helper.optional_patterns.each do |pattern|
   git "/opt/cloudconductor/patterns/#{pattern[:pattern_name]}" do
     repository "#{pattern[:url]}"
     revision "#{pattern[:revision]}"

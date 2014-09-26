@@ -15,12 +15,12 @@
 
 require '/opt/cloudconductor/lib/consul/consul_util'
 
-class Chef::Recipe::BootstrapHelper < Chef::Recipe
+class BootstrapHelper < Chef::Recipe
   def initialize(chef_recipe)
     super(chef_recipe.cookbook_name, chef_recipe.recipe_name, chef_recipe.run_context)
   end
 
-  def get_optional_patterns
+  def optional_patterns
     parameters = Consul::ConsulUtil.read_parameters
     patterns = parameters[:cloudconductor][:patterns]
     result = []

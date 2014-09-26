@@ -26,28 +26,28 @@ module Pattern
     LOG_DIR = File.join(TMP_DIR, 'logs')
     FILECACHE_DIR = File.join(TMP_DIR, 'cache')
 
-    def self.get_pattern_logger(pattern_name, filename_prefix)
+    def self.pattern_logger(pattern_name, filename_prefix)
       FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
       log_filename = File.join(LOG_DIR, "#{pattern_name}_#{filename_prefix}")
       Logger.new(log_filename)
     end
 
-    def self.get_platform_pattern_name
+    def self.platform_pattern_name
       platform_pattern_dir = ''
       Dir.glob("#{PATTERNS_ROOT_DIR}/*/").each do |pattern_dir|
         metadata_file = File.join(pattern_dir, 'metadata.yml')
-        next unless File.exist?(metadata_file) and YAML.load_file(metadata_file)['type'] == 'platform'
+        next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == 'platform'
         platform_pattern_dir = pattern_dir
         break
       end
       platform_pattern_dir.slice(%r{#{PATTERNS_ROOT_DIR}/(?<pattern_name>[^/]*)}, 'pattern_name')
     end
 
-    def self.get_optional_pattern_names
+    def self.optional_pattern_names
       Dir.glob("#{PATTERNS_ROOT_DIR}/*/").each do |pattern_dir|
         optional_pattern_names = []
         metadata_file = File.join(pattern_dir, 'metadata.yml')
-        next unless File.exist?(metadata_file) and YAML.load_file(metadata_file)['type'] == 'optional'
+        next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == 'optional'
         optional_pattern_name = platform_pattern_dir.slice(%r{#{PATTERNS_ROOT_DIR}/(?<pattern_name>[^/]*)}, 'pattern_name')
         optional_pattern_names << optional_pattern_name
       end

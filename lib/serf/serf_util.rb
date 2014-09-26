@@ -16,18 +16,17 @@ require_relative '../pattern/pattern_util'
 
 module Serf
   class SerfUtil
-  
-    def self.get_host_info
+    def self.host_info
       hostname = `hostname`.strip
       serf_members_result = `serf members -name="^#{hostname}$"`.strip.split(' ')
       ip_address = serf_members_result[1].split(':')[0]
       roles = serf_members_result[3].split('=')[1].split(',')
       host_info = {
         roles: roles,
-        pattern: Pattern::PatternUtil.get_platform_pattern_name,
+        pattern: Pattern::PatternUtil.platform_pattern_name,
         private_ip: ip_address
       }
-      [ hostname, host_info ]
+      [hostname, host_info]
     end
   end
 end
