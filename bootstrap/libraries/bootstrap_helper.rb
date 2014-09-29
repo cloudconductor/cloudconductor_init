@@ -21,9 +21,10 @@ class BootstrapHelper < Chef::Recipe
   end
 
   def optional_patterns
-    parameters = Consul::ConsulUtil.read_parameters
-    patterns = parameters[:cloudconductor][:patterns]
     result = []
+    parameters = Consul::ConsulUtil.read_parameters
+    return result if parameters[:cloudconductor].nil? || parameters[:cloudconductor][:patterns].nil?
+    patterns = parameters[:cloudconductor][:patterns]
     patterns.each do |pattern_name, pattern|
       pattern[:pattern_name] = pattern_name
       result << pattern if pattern[:type] == 'optional'
