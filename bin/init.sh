@@ -27,3 +27,5 @@ cd ${CONFIG_DIR}
 berks vendor ${TMP_DIR}/cookbooks
 cd ${CONDUCTOR_DIR}
 chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+
+SERF_USER_EVENT="setup" /opt/serf/event_handlers/event-handler
