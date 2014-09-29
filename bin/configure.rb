@@ -30,21 +30,12 @@ class PreConfigureRunner
   end
 
   def add_server
-    parameters = Consul::ConsulUtil.read_parameters
     hostname, host_info = Serf::SerfUtil.host_info
-    server_info = {
-      cloudconductor: {
-        servers: {
-          hostname => host_info
-        }
-      }
-    }
-    parameters.deep_merge!(server_info)
     begin
-      Consul::ConsulUtil.update_parameters(parameters)
-      @logger.info("updated parameters successfully.: #{parameters}")
+      Consul::ConsulUtil.update_servers(hostname, host_info)
+      @logger.info("updated servers successfully.: #{host_info}")
     rescue => exception
-      @logger.error("failed to put the parameters to Consul KVS. #{exception.message}")
+      @logger.error("failed to put the host_info to Consul KVS. #{exception.message}")
     end
   end
 end

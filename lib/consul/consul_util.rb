@@ -18,7 +18,9 @@ require 'base64'
 
 module Consul
   class ConsulUtil
-    CONSUL_KVS_PARAMETERS_URL = 'http://127.0.0.1:8500/v1/kv/cloudconductor/parameters'
+    CONSUL_KVS_URL = 'http://127.0.0.1:8500/v1/kv/cloudconductor'
+    CONSUL_KVS_PARAMETERS_URL = "#{CONSUL_KVS_URL}/parameters"
+    CONSUL_KVS_SERVERS_URL = "#{CONSUL_KVS_URL}/servers"
 
     def self.read_parameters
       begin
@@ -34,6 +36,27 @@ module Consul
 
     def self.update_parameters(parameters)
       RestClient.put(CONSUL_KVS_PARAMETERS_URL, parameters.to_json)
+    end
+
+    def self.read_servers
+      begin
+        servers = {}
+        response = RestClient.get("#{CONSUL_KVS_SERVERS_URL}?recurse")
+        JSON.parse(response, symbolize_names: true).each do |response_hash|
+          key = response_hash[:Key]
+          next if key == 'cloudconductor/servers'
+          hostname = key.slice(%r{cloudconductor/servers/(?<hostname>[^/]*)}, 'hostname')
+          server_info_json = Base64.decode64(response_hash[:Value])
+          servers[hostname] = JSON.parse(server_info_json, symbolize_names: true)
+        end
+      rescue
+        servers = {}
+      end
+      servers
+    end
+
+    def self.update_servers(hostname, server_info)
+      RestClient.put("#{CONSUL_KVS_SERVERS_URL}/#{hostname}", server_info.to_json)
     end
   end
 end
