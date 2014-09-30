@@ -15,20 +15,18 @@
 
 require '/opt/cloudconductor/lib/consul/consul_util'
 
-class BootstrapHelper < Chef::Recipe
-  def initialize(chef_recipe)
-    super(chef_recipe.cookbook_name, chef_recipe.recipe_name, chef_recipe.run_context)
-  end
-
-  def optional_patterns
-    result = []
-    parameters = Consul::ConsulUtil.read_parameters
-    return result if parameters[:cloudconductor].nil? || parameters[:cloudconductor][:patterns].nil?
-    patterns = parameters[:cloudconductor][:patterns]
-    patterns.each do |pattern_name, pattern|
-      pattern[:pattern_name] = pattern_name
-      result << pattern if pattern[:type] == 'optional'
+module CloudConductor
+  module BootstrapHelper
+    def optional_patterns
+      result = []
+      parameters = Consul::ConsulUtil.read_parameters
+      return result if parameters[:cloudconductor].nil? || parameters[:cloudconductor][:patterns].nil?
+      patterns = parameters[:cloudconductor][:patterns]
+      patterns.each do |pattern_name, pattern|
+        pattern[:pattern_name] = pattern_name
+        result << pattern if pattern[:type] == 'optional'
+      end
+      result
     end
-    result
   end
 end
