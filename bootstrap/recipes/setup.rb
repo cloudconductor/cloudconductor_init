@@ -64,7 +64,7 @@ git "/opt/cloudconductor/patterns/#{platform_pattern_name}" do
 end
 
 # setup consul services information of platform pattern
-Dir[ "/opt/cloudconductor/patterns/#{platform_pattern_name}/services/**/*" ].each do |service_file|
+Dir["/opt/cloudconductor/patterns/#{platform_pattern_name}/services/**/*"].each do |service_file|
   file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
     content IO.read(service_file)
   end if File.file?(service_file)

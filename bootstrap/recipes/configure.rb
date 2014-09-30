@@ -8,7 +8,7 @@ optional_patterns.each do |pattern|
     action :checkout
   end
 
-  Dir[ "/opt/cloudconductor/patterns/#{pattern[:pattern_name]}/services/**/*" ].each do |service_file|
+  Dir["/opt/cloudconductor/patterns/#{pattern[:pattern_name]}/services/**/*"].each do |service_file|
     file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
       content IO.read(service_file)
     end if File.file?(service_file)
