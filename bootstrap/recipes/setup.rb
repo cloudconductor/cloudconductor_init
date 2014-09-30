@@ -53,18 +53,18 @@ ruby_block 'stop consul' do
   notifies :run, 'ruby_block[delete consul data]', :delayed
 end
 
-# checkout platform pattern
-platform_pattern_name = ENV['PLATFORM_PATTERN_NAME']
-platform_pattern_url = ENV['PLATFORM_PATTERN_URL']
-platform_pattern_revision = ENV['PLATFORM_PATTERN_REVISION']
-git "/opt/cloudconductor/patterns/#{platform_pattern_name}" do
-  repository "#{platform_pattern_url}"
-  revision "#{platform_pattern_revision}"
+# checkout pattern
+pattern_name = ENV['PATTERN_NAME']
+pattern_url = ENV['PATTERN_URL']
+pattern_revision = ENV['PATTERN_REVISION']
+git "/opt/cloudconductor/patterns/#{pattern_name}" do
+  repository "#{pattern_url}"
+  revision "#{pattern_revision}"
   action :checkout
 end
 
-# setup consul services information of platform pattern
-Dir["/opt/cloudconductor/patterns/#{platform_pattern_name}/services/**/*"].each do |service_file|
+# setup consul services information of the pattern
+Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/**/*"].each do |service_file|
   file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
     content IO.read(service_file)
   end if File.file?(service_file)
