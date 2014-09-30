@@ -24,11 +24,24 @@ class ActionRunner
   LOG_DIR = File.join(ROOT_DIR, 'tmp/logs')
   LOG_FILE = File.join(LOG_DIR, 'action_runner.log')
   PATTERNS_ROOT_DIR = File.join(ROOT_DIR, 'patterns')
+  VALID_EVENT = ['setup', 'configure', 'deploy', 'backup', 'restore']
 
   def initialize
     FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
     @logger = Logger.new(LOG_FILE)
   end
+
+  def execute
+    if VALID_EVENT.include?(ENV['SERF_USER_EVENT'])
+      execute_pre_configure
+      execute_pattern('platform')
+      execute_pattern('optional')
+    else
+      @logger.info("event [#{ENV['SERF_USER_EVENT']}] is ignored.")
+    end
+  end
+
+  private
 
   def execute_pre_configure
     return unless ENV['SERF_USER_EVENT'] != 'configure'
@@ -56,7 +69,4 @@ class ActionRunner
   end
 end
 
-action_runner = ActionRunner.new
-action_runner.execute_pre_configure
-action_runner.execute_pattern('platform')
-action_runner.execute_pattern('optional')
+action_runner = ActionRunner.new.execute
