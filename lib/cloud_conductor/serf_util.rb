@@ -12,9 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require_relative '../pattern/pattern_util'
+require_relative './pattern_util'
 
-module Serf
+module CloudConductor
   class SerfUtil
     def self.host_info
       hostname = `hostname`.strip
@@ -23,7 +23,7 @@ module Serf
       roles = serf_members_result[3].split('=')[1].split(',')
       host_info = {
         roles: roles,
-        pattern: Pattern::PatternUtil.platform_pattern_name,
+        pattern: CloudConductor::PatternUtil.platform_pattern_name,
         private_ip: ip_address
       }
       [hostname, host_info]

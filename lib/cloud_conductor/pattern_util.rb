@@ -18,7 +18,7 @@ require 'base64'
 require 'logger'
 require 'yaml'
 
-module Pattern
+module Cloudconductor
   class PatternUtil
     ROOT_DIR = '/opt/cloudconductor'
     PATTERNS_ROOT_DIR = File.join(ROOT_DIR, 'patterns')

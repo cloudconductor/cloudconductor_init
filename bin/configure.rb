@@ -16,8 +16,8 @@
 require 'fileutils'
 require 'logger'
 require 'active_support'
-require_relative '../lib/consul/consul_util'
-require_relative '../lib/serf/serf_util'
+require_relative '../lib/cloudconductor/consul_util'
+require_relative '../lib/cloudconductor/serf_util'
 
 class PreConfigureRunner
   ROOT_DIR = '/opt/cloudconductor'
@@ -30,9 +30,9 @@ class PreConfigureRunner
   end
 
   def add_server
-    hostname, host_info = Serf::SerfUtil.host_info
+    hostname, host_info = CloudConductor::SerfUtil.host_info
     begin
-      Consul::ConsulUtil.update_servers(hostname, host_info)
+      CloudConductor::ConsulUtil.update_servers(hostname, host_info)
       @logger.info("updated servers successfully.: #{host_info}")
     rescue => exception
       @logger.error("failed to put the host_info to Consul KVS. #{exception.message}")

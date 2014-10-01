@@ -16,7 +16,7 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
-module Consul
+module CloudConductor
   class ConsulUtil
     CONSUL_KVS_URL = 'http://127.0.0.1:8500/v1/kv/cloudconductor'
     CONSUL_KVS_PARAMETERS_URL = "#{CONSUL_KVS_URL}/parameters"
