@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require '/opt/cloudconductor/lib/cloudconductor/consul_util'
+require '/opt/cloudconductor/lib/cloud_conductor/consul_util'
 
 module CloudConductor
   module BootstrapHelper

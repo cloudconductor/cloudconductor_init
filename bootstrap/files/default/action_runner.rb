@@ -44,7 +44,7 @@ class ActionRunner
   private
 
   def execute_pre_configure
-    return unless ENV['SERF_USER_EVENT'] != 'configure'
+    return unless ENV['SERF_USER_EVENT'] == 'configure'
     @logger.info('execute pre-configure.')
     pre_configure_result = system("cd #{BIN_DIR}; ./configure.sh")
     if pre_configure_result

@@ -16,8 +16,8 @@
 require 'fileutils'
 require 'logger'
 require 'active_support'
-require_relative '../lib/cloudconductor/consul_util'
-require_relative '../lib/cloudconductor/serf_util'
+require_relative '../lib/cloud_conductor/consul_util'
+require_relative '../lib/cloud_conductor/serf_util'
 
 class PreConfigureRunner
   ROOT_DIR = '/opt/cloudconductor'
