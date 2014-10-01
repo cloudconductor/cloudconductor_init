@@ -24,7 +24,7 @@ class ActionRunner
   LOG_DIR = File.join(ROOT_DIR, 'tmp/logs')
   LOG_FILE = File.join(LOG_DIR, 'action_runner.log')
   PATTERNS_ROOT_DIR = File.join(ROOT_DIR, 'patterns')
-  VALID_EVENT = %w('setup', 'configure', 'deploy', 'backup', 'restore')
+  VALID_EVENT = %w(setup configure deploy backup restore spec)
 
   def initialize
     FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
