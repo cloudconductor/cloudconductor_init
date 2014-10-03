@@ -13,19 +13,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CONDUCTOR_DIR="/opt/cloudconductor"
-CONFIG_DIR="${CONDUCTOR_DIR}/etc"
-TMP_DIR="${CONDUCTOR_DIR}/tmp"
-LOG_DIR="${TMP_DIR}/logs"
-FILE_CACHE_DIR="${TMP_DIR}/cache"
+source /opt/cloudconductor/lib/common.sh
 
-mkdir -p ${TMP_DIR}
-mkdir -p ${LOG_DIR}
-mkdir -p ${FILE_CACHE_DIR}
+CONFIG_DIR="${ROOT_DIR}/etc"
+LOG_FILE="${LOG_DIR}/bootstrap.log"
 
 cd ${CONFIG_DIR}
+log_info "execute berks."
 berks vendor ${TMP_DIR}/cookbooks
-cd ${CONDUCTOR_DIR}
-chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+if [ $? -eq 0 ]; then
+  log_info "berks has finished successfully."
+else
+  log_warn "berks has finished abnormally."
+fi
 
+cd ${ROOT_DIR}
+log_info "execute chef-solo."
+chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+chefsolo_result=$?
+if [ ${chefsolo_result} -eq 0 ]; then
+  log_info "chef-solo has finished successfully."
+else
+  log_error "chef-solo has finished abnormally."
+  exit -1
+fi
+
+log_info "execute event-handler with setup event."
 SERF_USER_EVENT="setup" /opt/serf/event_handlers/event-handler
+if [ $? -eq 0 ]; then
+  log_info "event-handler has finished successfully."
+else
+  log_error "event-handler has finished abnormally."
+  exit -1
+fi

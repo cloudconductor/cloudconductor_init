@@ -16,17 +16,14 @@
 require 'fileutils'
 require 'logger'
 require 'active_support'
-require_relative '../lib/cloud_conductor/consul_util'
-require_relative '../lib/cloud_conductor/serf_util'
+require '/opt/cloudconductor/lib/cloud_conductor/consul_util'
+require '/opt/cloudconductor/lib/cloud_conductor/serf_util'
 
 class PreConfigureRunner
-  ROOT_DIR = '/opt/cloudconductor'
-  LOG_DIR = File.join(ROOT_DIR, 'tmp/logs')
-  LOG_FILE = File.join(LOG_DIR, 'pre_configure_runner.log')
-
   def initialize
-    FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
-    @logger = Logger.new(LOG_FILE)
+    FileUtils.mkdir_p(CloudConductor::PatternUtil::LOG_DIR) unless Dir.exist?(CloudConductor::PatternUtil::LOG_DIR)
+    log_file = File.join(CloudConductor::PatternUtil::LOG_DIR, 'bootstrap.log')
+    @logger = Logger.new(log_file)
   end
 
   def add_server
@@ -36,6 +33,7 @@ class PreConfigureRunner
       @logger.info("updated servers successfully.: #{host_info}")
     rescue => exception
       @logger.error("failed to put the host_info to Consul KVS. #{exception.message}")
+      raise
     end
   end
 end

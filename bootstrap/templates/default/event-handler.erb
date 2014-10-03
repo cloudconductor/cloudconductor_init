@@ -13,35 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CONDUCTOR_ROOT_DIR="/opt/cloudconductor"
-CONDUCTOR_PATTERNS_ROOT_DIR="${CONDUCTOR_ROOT_DIR}/patterns"
-CONDUCTOR_EVENT_HANDLER_DIR="<%= @event_handlers_directory %>"
-CONFIG_FILE="/etc/profile.d/chef.sh"
-TMP_DIR="${CONDUCTOR_ROOT_DIR}/tmp"
-LOG_DIR="${TMP_DIR}/logs"
+source /opt/cloudconductor/lib/common.sh
+
+EVENT_HANDLER_DIR="<%= @event_handlers_directory %>"
 LOG_FILE="${LOG_DIR}/event-handler.log"
 
-mkdir -p ${LOG_DIR}
+log_info "event-handler has started with: SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_EVEMT[${SERF_EVENT}], SERF_USER_EVENT[${SERF_USER_EVENT}]"
 
-function log() {
-  message="$1"
-  echo "[`date +'%Y/%m/%d %H:%M:%S'`] $1" >> ${LOG_FILE}
-}
-
-if [ -f ${CONFIG_FILE} ]; then
-  chefdk_path="`cat ${CONFIG_FILE} | awk -F: '{print $2}'`"
-  export PATH=${chefdk_path}:${PATH}
-else
-  log "finished abnormally. ${CONFIG_FILE} couldn't be loaded."
+export PATH=`chefdk_path`:${PATH}
+ruby ${EVENT_HANDLER_DIR}/action_runner.rb
+if [ $? -ne 0 ]; then
+  log_error "finished abnormally. action_runner has failed."
   exit -1
 fi
 
-ruby_log="`ruby ${CONDUCTOR_EVENT_HANDLER_DIR}/action_runner.rb 2>&1`"
-ruby_result=$?
-log "${ruby_log}"
-if [ ${ruby_result} -ne 0 ]; then
-  log "finished abnormally. action_runner has failed to run."
-  exit -1
-fi
-
-log "finished successfully."
+log_info "finished successfully."

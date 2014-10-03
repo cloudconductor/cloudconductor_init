@@ -23,13 +23,18 @@ module CloudConductor
     ROOT_DIR = '/opt/cloudconductor'
     PATTERNS_ROOT_DIR = File.join(ROOT_DIR, 'patterns')
     TMP_DIR = File.join(ROOT_DIR, 'tmp')
-    LOG_DIR = File.join(TMP_DIR, 'logs')
+    LOG_DIR = File.join(ROOT_DIR, 'logs')
+    BIN_DIR = File.join(ROOT_DIR, 'bin')
     FILECACHE_DIR = File.join(TMP_DIR, 'cache')
 
     def self.pattern_logger(pattern_name, filename_prefix)
       FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
       log_filename = File.join(LOG_DIR, "#{pattern_name}_#{filename_prefix}")
-      Logger.new(log_filename)
+      logger = Logger.new(log_filename)
+      logger.formatter = proc do |severity, datetime, progname, message|
+        "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
+      end
+      logger
     end
 
     def self.platform_pattern_name
