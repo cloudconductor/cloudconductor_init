@@ -31,7 +31,7 @@ module CloudConductor
       FileUtils.mkdir_p(LOG_DIR) unless Dir.exist?(LOG_DIR)
       log_filename = File.join(LOG_DIR, "#{pattern_name}_#{filename_prefix}")
       logger = Logger.new(log_filename)
-      logger.formatter = proc do |severity, datetime, progname, message|
+      logger.formatter = proc do |severity, datetime, _progname, message|
         "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
       end
       logger

@@ -27,7 +27,7 @@ class ActionRunner
   def initialize
     FileUtils.mkdir_p(CloudConductor::PatternUtil::LOG_DIR) unless Dir.exist?(CloudConductor::PatternUtil::LOG_DIR)
     @logger = Logger.new(LOG_FILE)
-    @logger.formatter = proc do |severity, datetime, progname, message|
+    @logger.formatter = proc do |severity, datetime, _progname, message|
       "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
     end
     @serf_user_event = ENV['SERF_USER_EVENT']
