@@ -18,7 +18,7 @@ source /opt/cloudconductor/lib/common.sh
 EVENT_HANDLER_DIR="<%= @event_handlers_directory %>"
 LOG_FILE="${LOG_DIR}/event-handler.log"
 
-log_info "event-handler has started with: SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_EVEMT[${SERF_EVENT}], SERF_USER_EVENT[${SERF_USER_EVENT}]"
+log_info "event-handler has started with: SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_EVENT[${SERF_EVENT}], SERF_USER_EVENT[${SERF_USER_EVENT}]"
 
 export PATH=`chefdk_path`:${PATH}
 ruby ${EVENT_HANDLER_DIR}/action_runner.rb

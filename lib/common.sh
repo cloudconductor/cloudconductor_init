@@ -13,11 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export ROOT_DIR=/opt/cloudconductor
-export LOG_DIR=${ROOT_DIR}/logs
-export TMP_DIR=${ROOT_DIR}/tmp
-export BIN_DIR=${ROOT_DIR}/bin
-export FILECACHE_DIR=${TMP_DIR}/cache
+export ROOT_DIR="/opt/cloudconductor"
+export LOG_DIR="${ROOT_DIR}/logs"
+export TMP_DIR="${ROOT_DIR}/tmp"
+export BIN_DIR="${ROOT_DIR}/bin"
+export FILECACHE_DIR="${TMP_DIR}/cache"
+export CHEF_ENV_FILE="/etc/profile.d/chef.sh"
+
+function chefdk_path() {
+  echo "`cat ${CHEF_ENV_FILE} | awk -F: '{print $2}'`"
+}
 
 function log() {
   level="$1"
