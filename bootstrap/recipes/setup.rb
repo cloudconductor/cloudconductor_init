@@ -69,3 +69,8 @@ Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/**/*"].each do |servi
     content IO.read(service_file)
   end if File.file?(service_file)
 end
+
+# install serverspec
+gem_package 'serverspec' do
+  action :install
+end
