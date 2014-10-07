@@ -1,6 +1,6 @@
 AllCops:
   Exclude:
-    - cookbooks/**/*
+    - patterns/**/*
 
 LineLength:
   Max: 130
