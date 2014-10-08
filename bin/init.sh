@@ -17,16 +17,7 @@ source /opt/cloudconductor/lib/common.sh
 
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
-
-cd ${ROOT_DIR}
-log_info "execute bundler."
-bundle install --without test development
-if [ $? -eq 0 ]; then
-  log_info "bundler has finished successfully."
-else
-  log_error "bundler has finished abnormally."
-  exit -1
-fi
+export PATH=`chefdk_path`:${PATH}
 
 cd ${TMP_DIR}
 log_info "install cloud_conductor_utils."
