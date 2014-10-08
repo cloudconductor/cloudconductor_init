@@ -22,7 +22,7 @@ class ActionRunner
   def initialize
     @root_dir = '/opt/cloudconductor'
     log_dir = File.join(@root_dir, 'logs')
-    log_file = File.join(@log_dir, 'event-handler.log')
+    log_file = File.join(log_dir, 'event-handler.log')
     FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
     @logger = Logger.new(log_file)
     @logger.formatter = proc do |severity, datetime, _progname, message|
