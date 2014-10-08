@@ -20,7 +20,7 @@ LOG_FILE="${LOG_DIR}/bootstrap.log"
 
 cd ${ROOT_DIR}
 log_info "execute bundler."
-bundle install
+bundle install --without test development
 if [ $? -eq 0 ]; then
   log_info "bundler has finished successfully."
 else
