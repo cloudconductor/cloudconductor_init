@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require '/opt/cloudconductor/lib/cloud_conductor/consul_util'
+require 'cloud_conductor_utils/consul'
 
 module CloudConductor
   module BootstrapHelper
     def optional_patterns
       result = []
-      parameters = CloudConductor::ConsulUtil.read_parameters
+      parameters = CloudConductorUtils::Consul.read_parameters
       return result if parameters[:cloudconductor].nil? || parameters[:cloudconductor][:patterns].nil?
       patterns = parameters[:cloudconductor][:patterns]
       patterns.each do |pattern_name, pattern|

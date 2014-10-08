@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
     - patterns/**/*
+    - vendor/bundle/**/*
 
 LineLength:
   Max: 130

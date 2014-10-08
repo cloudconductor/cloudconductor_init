@@ -17,16 +17,14 @@ require 'fileutils'
 require 'logger'
 require 'active_support'
 require 'yaml'
-require '/opt/cloudconductor/lib/cloud_conductor/pattern_util'
 
 class ActionRunner
-  BIN_DIR = File.join(CloudConductor::PatternUtil::ROOT_DIR, 'bin')
-  LOG_FILE = File.join(CloudConductor::PatternUtil::LOG_DIR, 'event-handler.log')
-  VALID_EVENT = %w(setup configure deploy backup restore spec)
-
   def initialize
-    FileUtils.mkdir_p(CloudConductor::PatternUtil::LOG_DIR) unless Dir.exist?(CloudConductor::PatternUtil::LOG_DIR)
-    @logger = Logger.new(LOG_FILE)
+    @root_dir = '/opt/cloudconductor'
+    log_dir = File.join(@root_dir, 'logs')
+    log_file = File.join(@log_dir, 'event-handler.log')
+    FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
+    @logger = Logger.new(log_file)
     @logger.formatter = proc do |severity, datetime, _progname, message|
       "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
     end
@@ -35,7 +33,8 @@ class ActionRunner
   end
 
   def execute
-    if VALID_EVENT.include?(@serf_user_event)
+    valid_events = %w(setup configure deploy backup restore spec)
+    if valid_events.include?(@serf_user_event)
       execute_pre_configure
       execute_pattern('platform')
       execute_pattern('optional')
@@ -49,7 +48,8 @@ class ActionRunner
   def execute_pre_configure
     return unless @serf_user_event == 'configure'
     @logger.info('execute pre-configure.')
-    pre_configure_result = system("cd #{BIN_DIR}; ./configure.sh")
+    bin_dir = File.join(@root_dir, 'bin')
+    pre_configure_result = system("cd #{bin_dir}; ./configure.sh")
     if pre_configure_result
       @logger.info('pre-configure executed successfully.')
     else
@@ -58,7 +58,8 @@ class ActionRunner
   end
 
   def execute_pattern(type)
-    Dir.glob("#{CloudConductor::PatternUtil::PATTERNS_ROOT_DIR}/*/").each do |pattern_dir|
+    patterns_root_dir = File.join(@root_dir, 'patterns')
+    Dir.glob("#{patterns_root_dir}/*/").each do |pattern_dir|
       metadata_file = File.join(pattern_dir, 'metadata.yml')
       next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == type
       @logger.info("execute pattern [#{pattern_dir}]")
