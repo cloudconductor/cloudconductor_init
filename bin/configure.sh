@@ -18,6 +18,15 @@ source /opt/cloudconductor/lib/common.sh
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
 
+cd ${CONFIG_DIR}
+log_info "execute berks."
+berks vendor ${TMP_DIR}/cookbooks
+if [ $? -eq 0 ]; then
+  log_info "berks has finished successfully."
+else
+  log_warn "berks has finished abnormally."
+fi
+
 log_info "execute configure.rb."
 ruby ${BIN_DIR}/configure.rb
 if [ $? -eq 0 ]; then

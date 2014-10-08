@@ -27,6 +27,12 @@ git checkout develop
 rake build
 cd pkg
 gem install ./*.gem
+if [ $? -eq 0 ]; then
+  log_info "install cloud_conductor_utils has finished successfully."
+else
+  log_error "install cloud_conductor_utils has finished abnormally."
+  exit -1
+fi
 
 cd ${CONFIG_DIR}
 log_info "execute berks."
