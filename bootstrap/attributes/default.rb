@@ -16,3 +16,8 @@ default['consul']['service_mode'] = 'server'
 default['consul']['service_user'] = 'root'
 default['consul']['service_group'] = 'root'
 default['consul']['bind_addr'] = '0.0.0.0'
+
+# set pattern attributes
+default['cloudconductor']['pattern_name'] = ENV['PATTERN_NAME']
+default['cloudconductor']['pattern_url'] = ENV['PATTERN_URL']
+default['cloudconductor']['pattern_revision'] = ENV['PATTERN_REVISION']

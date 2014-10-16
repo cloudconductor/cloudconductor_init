@@ -55,12 +55,9 @@ ruby_block 'stop consul' do
 end
 
 # checkout pattern
-pattern_name = ENV['PATTERN_NAME']
-pattern_url = ENV['PATTERN_URL']
-pattern_revision = ENV['PATTERN_REVISION']
-git "/opt/cloudconductor/patterns/#{pattern_name}" do
-  repository "#{pattern_url}"
-  revision "#{pattern_revision}"
+git "/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}" do
+  repository "#{node['cloudconductor']['pattern_url']}"
+  revision "#{node['cloudconductor']['pattern_revision']}"
   action :checkout
 end
 
