@@ -2,6 +2,8 @@ include_recipe 'yum-epel'
 include_recipe 'iptables::disabled'
 include_recipe 'serf'
 
+pattern_name = node['cloudconductor']['pattern_name']
+
 # override template
 r = resources(template: '/etc/init.d/serf')
 r.cookbook 'bootstrap'
@@ -55,22 +57,26 @@ ruby_block 'stop consul' do
 end
 
 # checkout pattern
-git "/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}" do
+git "/opt/cloudconductor/patterns/#{pattern_name}" do
   repository "#{node['cloudconductor']['pattern_url']}"
   revision "#{node['cloudconductor']['pattern_revision']}"
   action :checkout
 end
 
 # create symbolic link to pattern logs
-link "/opt/cloudconductor/logs/#{node['cloudconductor']['pattern_name']}" do
-  to "/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}/logs"
+link "/opt/cloudconductor/logs/#{pattern_name}" do
+  to "/opt/cloudconductor/patterns/#{pattern_name}/logs"
 end
 
 # setup consul services information of the pattern
-Dir["/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}/services/**/*"].each do |service_file|
-  file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
-    content IO.read(service_file)
-  end if File.file?(service_file)
+roles = node['serf']['agent']['tags']['role'].split(',')
+roles << 'all'
+roles.each do |role|
+  Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|
+    file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
+      content IO.read(service_file)
+    end if File.file?(service_file)
+  end
 end
 
 # install serverspec
