@@ -62,12 +62,12 @@ git "/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}" do
 end
 
 # create symbolic link to pattern logs
-link "/opt/cloudconductor/logs/#{pattern_name}" do
-  to "/opt/cloudconductor/patterns/#{pattern_name}/logs"
+link "/opt/cloudconductor/logs/#{node['cloudconductor']['pattern_name']}" do
+  to "/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}/logs"
 end
 
 # setup consul services information of the pattern
-Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/**/*"].each do |service_file|
+Dir["/opt/cloudconductor/patterns/#{node['cloudconductor']['pattern_name']}/services/**/*"].each do |service_file|
   file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
     content IO.read(service_file)
   end if File.file?(service_file)
