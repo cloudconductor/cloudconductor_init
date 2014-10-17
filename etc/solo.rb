@@ -1,3 +1,4 @@
+ssl_verify_mode :verify_peer
 log_level :info
 log_location '/opt/cloudconductor/logs/bootstrap_chef-solo.log'
 file_cache_path '/opt/cloudconductor/tmp/cache'
