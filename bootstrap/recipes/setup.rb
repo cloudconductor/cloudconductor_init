@@ -21,6 +21,11 @@ cookbook_file "#{serf_helper.getEventHandlersDirectory}/action_runner.rb" do
   mode 0755
 end
 
+cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_chef_status.sh" do
+  source 'check_chef_status.sh'
+  mode 0755
+end
+
 include_recipe 'consul::install_binary'
 include_recipe 'consul::_service'
 

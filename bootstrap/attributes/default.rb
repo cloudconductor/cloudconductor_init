@@ -1,3 +1,5 @@
+event_handlers_path = File.join(node['serf']['base_directory'], 'event_handlers')
+
 # override yum-epel attributes
 default['yum']['epel']['enabled'] = false
 
@@ -6,7 +8,7 @@ default['serf']['version'] = '0.6.3'
 default['serf']['agent']['bind'] = '0.0.0.0'
 default['serf']['agent']['rpc_addr'] = '0.0.0.0:7373'
 default['serf']['agent']['enable_syslog'] = true
-default['serf']['agent']['event_handlers'] = [File.join(node['serf']['base_directory'], 'event_handlers', 'event-handler')]
+default['serf']['agent']['event_handlers'] = [File.join(event_handlers_path, 'event-handler'), "query:chef_status=#{File.join(event_handlers_path, 'check_chef_status.sh')}"]
 default['serf']['agent']['tags']['role'] = ENV['SERF_TAG_ROLE']
 default['serf']['user'] = 'root'
 default['serf']['group'] = 'root'
