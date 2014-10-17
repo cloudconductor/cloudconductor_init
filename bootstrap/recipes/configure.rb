@@ -18,3 +18,8 @@ optional_patterns.each do |pattern|
     end if File.file?(service_file)
   end
 end
+
+# reload consul
+service 'consul' do
+  action :reload
+end
