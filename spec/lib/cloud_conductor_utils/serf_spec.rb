@@ -16,7 +16,7 @@ require_relative '../../../lib/cloud_conductor_utils/serf'
 
 module CloudConductorUtils
   describe Serf do
-    describe 'host_info' do
+    describe '#host_info' do
       it 'formats and returns information of host' do
         hostname = 'dummyhost'
         dummy_info = 'dummyhost 192.168.0.1:7946 alive role=web,ap,db'
