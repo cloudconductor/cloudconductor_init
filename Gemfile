@@ -9,6 +9,7 @@ group :development do
   gem 'pry-doc'
   gem 'pry-stack_explorer'
   gem 'guard-rubocop'
+  gem 'cloud_conductor_utils', :git => 'https://github.com/cloudconductor/cloud_conductor_utils.git', :branch => 'develop'
 end
 
 group :test do
@@ -18,4 +19,5 @@ group :test do
   gem 'spork'
   gem 'guard-spork'
   gem 'factory_girl'
+  gem 'cloud_conductor_utils', :git => 'https://github.com/cloudconductor/cloud_conductor_utils.git', :branch => 'develop'
 end
