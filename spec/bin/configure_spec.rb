@@ -35,8 +35,8 @@ describe PreConfigureRunner do
       allow(FileUtils).to receive(:mkdir_p)
       dummy_logger = Object.new
       allow(Logger).to receive(:new).with('/opt/cloudconductor/logs/bootstrap.log').and_return(dummy_logger)
-      allow(CloudConductorUtils::Serf).to receive(:host_info).and_return(['testhost', {key: 'value'}])
-      allow(CloudConductorUtils::Consul).to receive(:update_servers).with('testhost', {key: 'value'})
+      allow(CloudConductorUtils::Serf).to receive(:host_info).and_return(['testhost', key: 'value'])
+      allow(CloudConductorUtils::Consul).to receive(:update_servers).with('testhost', key: 'value')
       def dummy_logger.info(_message)
       end
       PreConfigureRunner.new.add_server

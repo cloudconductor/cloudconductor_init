@@ -73,6 +73,4 @@ class ActionRunner
   end
 end
 
-if __FILE__ == $PROGRAM_NAME
-  ActionRunner.new.execute
-end
+ActionRunner.new.execute if __FILE__ == $PROGRAM_NAME

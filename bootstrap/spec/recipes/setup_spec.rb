@@ -37,7 +37,7 @@ describe 'bootstrap::setup' do
     expect(chef_run).to create_template('/opt/serf/event_handlers/event-handler').with(
       source: 'event-handler.erb',
       mode: 0755,
-      variables: {event_handlers_directory: '/opt/serf/event_handlers'}
+      variables: { event_handlers_directory: '/opt/serf/event_handlers' }
     )
   end
 
@@ -79,7 +79,7 @@ describe 'bootstrap::setup' do
   it 'checkout pattern' do
     expect(chef_run).to checkout_git('/opt/cloudconductor/patterns/test_pattern').with(
       repository: 'test_url',
-      revision: 'test_revision',
+      revision: 'test_revision'
     )
   end
 

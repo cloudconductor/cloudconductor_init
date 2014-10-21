@@ -27,7 +27,9 @@ module CloudConductorUtils
         def dummy_logger.formatter
           @prc
         end
-        allow(Logger).to receive(:new).with('/opt/cloudconductor/logs/testpattern_testlog.log').and_return(dummy_logger)
+        allow(Logger).to receive(:new).with(
+          '/opt/cloudconductor/logs/testpattern_testlog.log'
+        ).and_return(dummy_logger)
         logger = Pattern.pattern_logger('testpattern', 'testlog.log')
         expect(dummy_logger.formatter).not_to be_nil
         expect(logger).not_to be_nil
@@ -36,12 +38,22 @@ module CloudConductorUtils
 
     describe '#platform_pattern_name' do
       it 'extracts the name of platform pattern' do
-        dummy_dirs = %w(/opt/cloudconductor/patterns/pattern1 /opt/cloudconductor/patterns/pattern2 /opt/cloudconductor/patterns/pattern3)
+        dummy_dirs = %w(
+          /opt/cloudconductor/patterns/pattern1
+          /opt/cloudconductor/patterns/pattern2
+          /opt/cloudconductor/patterns/pattern3
+        )
         allow(Dir).to receive(:glob).with('/opt/cloudconductor/patterns/*/').and_return(dummy_dirs)
         allow(File).to receive(:exist?).and_return(true)
-        allow(YAML).to receive(:load_file).with('/opt/cloudconductor/patterns/pattern1/metadata.yml').and_return({'type' => 'optional'})
-        allow(YAML).to receive(:load_file).with('/opt/cloudconductor/patterns/pattern2/metadata.yml').and_return({'type' => 'platform'})
-        allow(YAML).to receive(:load_file).with('/opt/cloudconductor/patterns/pattern3/metadata.yml').and_return({'type' => 'test'})
+        allow(YAML).to receive(:load_file).with(
+          '/opt/cloudconductor/patterns/pattern1/metadata.yml'
+        ).and_return('type' => 'optional')
+        allow(YAML).to receive(:load_file).with(
+          '/opt/cloudconductor/patterns/pattern2/metadata.yml'
+        ).and_return('type' => 'platform')
+        allow(YAML).to receive(:load_file).with(
+          '/opt/cloudconductor/patterns/pattern3/metadata.yml'
+        ).and_return('type' => 'test')
         platform_pattern_name = Pattern.platform_pattern_name
         expect(platform_pattern_name).to eq('pattern2')
       end

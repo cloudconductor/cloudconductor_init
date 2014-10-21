@@ -34,8 +34,12 @@ describe ActionRunner do
     def dummy_logger.error(message)
       @message = message
     end
-    allow(Logger).to receive(:new).with('/opt/cloudconductor/logs/testpattern_testlog.log').and_return(dummy_logger)
-    allow(Logger).to receive(:new).with('/opt/cloudconductor/logs/event-handler.log').and_return(dummy_logger)
+    allow(Logger).to receive(:new).with(
+      '/opt/cloudconductor/logs/testpattern_testlog.log'
+    ).and_return(dummy_logger)
+    allow(Logger).to receive(:new).with(
+      '/opt/cloudconductor/logs/event-handler.log'
+    ).and_return(dummy_logger)
   end
 
   describe '#initialize' do
@@ -115,9 +119,9 @@ describe ActionRunner do
       dummy_patterns = %w(/tmp/pattern1 /tmp/pattern2 /tmp/pattern3)
       allow(Dir).to receive(:glob).with('/opt/cloudconductor/patterns/*/').and_return(dummy_patterns)
       allow(File).to receive(:exist?).and_return(true)
-      allow(YAML).to receive(:load_file).with('/tmp/pattern1/metadata.yml').and_return({'type' => 'platform'})
-      allow(YAML).to receive(:load_file).with('/tmp/pattern2/metadata.yml').and_return({'type' => 'optional'})
-      allow(YAML).to receive(:load_file).with('/tmp/pattern3/metadata.yml').and_return({'type' => 'optional'})
+      allow(YAML).to receive(:load_file).with('/tmp/pattern1/metadata.yml').and_return('type' => 'platform')
+      allow(YAML).to receive(:load_file).with('/tmp/pattern2/metadata.yml').and_return('type' => 'optional')
+      allow(YAML).to receive(:load_file).with('/tmp/pattern3/metadata.yml').and_return('type' => 'optional')
       action_runner = ActionRunner.new
       def action_runner.system(command)
         @command = [] if @command.nil?
@@ -128,7 +132,10 @@ describe ActionRunner do
         @command
       end
       action_runner.send(:execute_pattern, 'optional')
-      expected_strings = ['cd /tmp/pattern2; ./event_handler.sh web,ap,db setup', 'cd /tmp/pattern3; ./event_handler.sh web,ap,db setup']
+      expected_strings = [
+        'cd /tmp/pattern2; ./event_handler.sh web,ap,db setup',
+        'cd /tmp/pattern3; ./event_handler.sh web,ap,db setup'
+      ]
       expect(action_runner.command).to eq(expected_strings)
     end
   end

@@ -93,5 +93,5 @@ end
 # install hping3
 package 'hping3' do
   action :install
-  options "--enablerepo=epel"
+  options '--enablerepo=epel'
 end
