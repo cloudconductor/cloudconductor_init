@@ -39,4 +39,6 @@ class PreConfigureRunner
   end
 end
 
-PreConfigureRunner.new.add_server
+if __FILE__ == $PROGRAM_NAME
+  PreConfigureRunner.new.add_server
+end
