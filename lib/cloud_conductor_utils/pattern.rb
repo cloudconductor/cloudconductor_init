@@ -47,16 +47,5 @@ module CloudConductorUtils
       end
       platform_pattern_dir.slice(%r{#{PATTERNS_ROOT_DIR}/(?<pattern_name>[^/]*)}, 'pattern_name')
     end
-
-    def self.optional_pattern_names
-      Dir.glob("#{PATTERNS_ROOT_DIR}/*/").each do |pattern_dir|
-        optional_pattern_names = []
-        metadata_file = File.join(pattern_dir, 'metadata.yml')
-        next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == 'optional'
-        optional_pattern_name = platform_pattern_dir.slice(%r{#{PATTERNS_ROOT_DIR}/(?<pattern_name>[^/]*)}, 'pattern_name')
-        optional_pattern_names << optional_pattern_name
-      end
-      optional_pattern_names
-    end
   end
 end
