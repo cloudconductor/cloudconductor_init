@@ -120,7 +120,6 @@ describe ActionRunner do
       allow(YAML).to receive(:load_file).with('/tmp/pattern3/metadata.yml').and_return({'type' => 'optional'})
       action_runner = ActionRunner.new
       def action_runner.system(command)
-        puts command
         @command = [] if @command.nil?
         @command << command
         true
