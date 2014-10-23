@@ -49,7 +49,7 @@ class ActionRunner
     return unless @serf_user_event == 'configure'
     @logger.info('execute pre-configure.')
     bin_dir = File.join(@root_dir, 'bin')
-    pre_configure_result = system("cd #{bin_dir}; ./configure.sh")
+    pre_configure_result = system("cd #{bin_dir}; /bin/sh ./configure.sh")
     if pre_configure_result
       @logger.info('pre-configure executed successfully.')
     else
@@ -63,7 +63,7 @@ class ActionRunner
       metadata_file = File.join(pattern_dir, 'metadata.yml')
       next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == type
       @logger.info("execute pattern [#{pattern_dir}]")
-      result = system("cd #{pattern_dir}; ./event_handler.sh #{@serf_tag_role} #{@serf_user_event}")
+      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@serf_tag_role} #{@serf_user_event}")
       if result
         @logger.info('executed successfully.')
       else
