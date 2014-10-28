@@ -26,6 +26,11 @@ cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_chef_status.sh" do
   mode 0755
 end
 
+cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_serverspec.sh" do
+  source 'check_serverspec.sh'
+  mode 0755
+end
+
 include_recipe 'consul::install_binary'
 include_recipe 'consul::_service'
 
