@@ -23,9 +23,9 @@ log_info "event-handler has started with: SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_
 export PATH=`chefdk_path`:${PATH}
 action_runner_result="`ruby ${EVENT_HANDLER_DIR}/action_runner.rb 2>&1`"
 if [ $? -ne 0 ]; then
-  log_error "finished abnormally. action_runner has failed."
+  log_error "finished abnormally. action_runner has failed. SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_EVENT[${SERF_EVENT}], SERF_USER_EVENT[${SERF_USER_EVENT}]"
   log_error "${action_runner_result}"
   exit -1
 fi
 
-log_info "finished successfully."
+log_info "finished successfully. SERF_TAG_ROLE[${SERF_TAG_ROLE}], SERF_EVENT[${SERF_EVENT}], SERF_USER_EVENT[${SERF_USER_EVENT}]"
