@@ -1,7 +1,7 @@
 About
 =====
 
-This is the bootstrap library used by CloudConductor to initialize the system environment which patterns build.
+This is the bootstrap library used by CloudConductor internally to initialize the system environment which patterns build.
 Currently supported:
 
 * CentOS (6.5)
