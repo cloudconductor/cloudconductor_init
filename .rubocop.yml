@@ -1,0 +1,22 @@
+AllCops:
+  Exclude:
+    - patterns/**/*
+    - vendor/bundle/**/*
+
+LineLength:
+  Max: 130
+
+MethodLength:
+  Max: 20
+
+AsciiComments:
+  Enabled: false
+
+Documentation:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Enabled: false
+
+Style/SingleSpaceBeforeFirstArg:
+  Enabled: false
