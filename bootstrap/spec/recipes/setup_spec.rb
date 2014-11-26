@@ -94,9 +94,7 @@ describe 'bootstrap::setup' do
   end
 
   it 'install serverspec' do
-    expect(chef_run).to install_gem_package('serverspec').with(
-      version: '1.16.0'
-    )
+    expect(chef_run).to install_gem_package('serverspec')
   end
 
   it 'install hping3' do
