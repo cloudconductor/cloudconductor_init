@@ -19,7 +19,7 @@ require 'active_support'
 require 'yaml'
 
 class ActionRunner
-  def initialize
+  def initialize(role, event)
     @root_dir = '/opt/cloudconductor'
     log_dir = File.join(@root_dir, 'logs')
     log_file = File.join(log_dir, 'event-handler.log')
@@ -28,25 +28,25 @@ class ActionRunner
     @logger.formatter = proc do |severity, datetime, _progname, message|
       "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
     end
-    @serf_user_event = ENV['SERF_USER_EVENT']
-    @serf_tag_role = ENV['SERF_TAG_ROLE']
+    @role = role
+    @event = event
   end
 
   def execute
     valid_events = %w(setup configure deploy backup restore spec)
-    if valid_events.include?(@serf_user_event)
+    if valid_events.include?(@event)
       execute_pre_configure
       execute_pattern('platform')
       execute_pattern('optional')
     else
-      @logger.info("event [#{@serf_user_event}] is ignored.")
+      @logger.info("event [#{@event}] is ignored.")
     end
   end
 
   private
 
   def execute_pre_configure
-    return unless @serf_user_event == 'configure'
+    return unless @event == 'configure'
     @logger.info('execute pre-configure.')
     bin_dir = File.join(@root_dir, 'bin')
     pre_configure_result = system("cd #{bin_dir}; /bin/sh ./configure.sh")
@@ -63,7 +63,7 @@ class ActionRunner
       metadata_file = File.join(pattern_dir, 'metadata.yml')
       next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == type
       @logger.info("execute pattern [#{pattern_dir}]")
-      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@serf_tag_role} #{@serf_user_event}")
+      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@role} #{@event}")
       if result
         @logger.info('executed successfully.')
       else
@@ -73,4 +73,4 @@ class ActionRunner
   end
 end
 
-ActionRunner.new.execute if __FILE__ == $PROGRAM_NAME
+ActionRunner.new(ARGV[0], ARGV[1]).execute if __FILE__ == $PROGRAM_NAME

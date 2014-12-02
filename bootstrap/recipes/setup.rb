@@ -1,33 +1,26 @@
 include_recipe 'yum-epel'
 include_recipe 'iptables::disabled'
-include_recipe 'serf'
 
 pattern_name = node['cloudconductor']['pattern_name']
+event_handlers_dir = node['cloudconductor']['event_handlers_dir']
 
-# override template
-r = resources(template: '/etc/init.d/serf')
-r.cookbook 'bootstrap'
+# create directory for Consul event-handler
+directory event_handlers_dir do
+  owner 'root'
+  group 'root'
+  mode 0755
+  recursive true
+  action :create
+end
 
 # install event-handler
-serf_helper = SerfHelper.new self
-template node['serf']['agent']['event_handlers'].first do
-  source 'event-handler.erb'
+cookbook_file File.join(event_handlers_dir, 'event-handler') do
+  source 'event-handler'
   mode 0755
-  variables event_handlers_directory: serf_helper.getEventHandlersDirectory
 end
 
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/action_runner.rb" do
+cookbook_file File.join(event_handlers_dir, 'action_runner.rb') do
   source 'action_runner.rb'
-  mode 0755
-end
-
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_chef_status.sh" do
-  source 'check_chef_status.sh'
-  mode 0755
-end
-
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_serverspec.sh" do
-  source 'check_serverspec.sh'
   mode 0755
 end
 
@@ -37,6 +30,27 @@ include_recipe 'consul::_service'
 # override Consul service template
 r = resources(template: '/etc/init.d/consul')
 r.cookbook 'bootstrap'
+
+# install Consul watches configuration file
+watches = []
+node['cloudconductor']['events'].each do |event|
+  watch = {
+    'type' => 'event',
+    'name' => event,
+    'handler' => "#{File.join(event_handlers_dir, 'event-handler')} #{event}"
+  }
+  watches << watch
+end
+watches_configuration = {
+  'watches' => watches
+}
+template File.join(node['consul']['config_dir'], 'watches.json') do
+  source 'watches.json.erb'
+  mode 0755
+  variables(
+    watches_configuration: watches_configuration
+  )
+end
 
 # delete 70-persistent-net.rules extra lines
 ruby_block 'delete 70-persistent-net.rules extra line' do
@@ -79,7 +93,7 @@ link "/opt/cloudconductor/logs/#{pattern_name}" do
 end
 
 # setup consul services information of the pattern
-roles = node['serf']['agent']['tags']['role'].split(',')
+roles = node['cloudconductor']['role'].split(',')
 roles << 'all'
 roles.each do |role|
   Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|

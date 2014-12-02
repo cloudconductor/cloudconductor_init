@@ -55,6 +55,38 @@ function log_fatal() {
   log "FATAL" "${message}"
 }
 
+function write_event_handler_result() {
+  if [ "$1" == "null" ]; then
+    event_id="null"
+    event_id_key="null"
+  else
+    event_id="\"$1\""
+    event_id_key="$1"
+  fi
+  if [ "$2" == "null" ]; then
+    type="null"
+  else
+    type="\"$2\""
+  fi
+  if [ "$3" == "null" ]; then
+    result="null"
+  else
+    result="\"$3\""
+  fi
+  if [ "$4" == "null" ]; then
+    start_datetime="null"
+  else
+    start_datetime="\"$4\""
+  fi
+  if [ "$5" == "null" ]; then
+    end_datetime="null"
+  else
+    end_datetime="\"$5\""
+  fi
+  data="{\"event_id\":${event_id},\"type\":${type},\"result\":${result},\"start_datetime\":${start_datetime},\"end_datetime\":${end_datetime}}"
+  curl -X PUT http://localhost:8500/v1/kv/event/${event_id_key}/`hostname` -d "${data}" >/dev/null 2>&1
+}
+
 if [ ! -d ${LOG_DIR} ]; then
   mkdir -p ${LOG_DIR}
 fi

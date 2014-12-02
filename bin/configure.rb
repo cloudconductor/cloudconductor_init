@@ -17,7 +17,7 @@ require 'fileutils'
 require 'logger'
 require 'active_support'
 require 'cloud_conductor_utils/consul'
-require_relative '../lib/cloud_conductor_utils/serf'
+require_relative '../lib/cloud_conductor_utils/pattern'
 
 class PreConfigureRunner
   def initialize
@@ -28,14 +28,35 @@ class PreConfigureRunner
   end
 
   def add_server
-    hostname, host_info = CloudConductorUtils::Serf.host_info
+    hostname, host_info_hash = host_info
     begin
-      CloudConductorUtils::Consul.update_servers(hostname, host_info)
-      @logger.info("updated servers successfully.: #{host_info}")
+      CloudConductorUtils::Consul.update_servers(hostname, host_info_hash)
+      @logger.info("updated servers successfully.: #{host_info_hash}")
     rescue => exception
       @logger.error("failed to put the host_info to Consul KVS. #{exception.message}")
       raise
     end
+  end
+
+  private
+
+  def host_info
+    hostname = `hostname`.strip
+    config_lines = File.open('/opt/cloudconductor/config').read.split("\n")
+    config_items = config_lines.map do |config_line|
+      config_line.split('=')
+    end
+    config = Hash[*(config_items.flatten)]
+
+    consul_members_result = `consul members | egrep "^#{hostname} +"`.strip.split(' ')
+    ip_address = consul_members_result[1].split(':')[0]
+    roles = config['ROLE'].split(',')
+    host_info_hash = {
+      roles: roles,
+      pattern: CloudConductorUtils::Pattern.platform_pattern_name,
+      private_ip: ip_address
+    }
+    [hostname, host_info_hash]
   end
 end
 

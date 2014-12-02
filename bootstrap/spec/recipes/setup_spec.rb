@@ -1,19 +1,14 @@
 require_relative '../spec_helper'
+require 'chefspec'
 
 describe 'bootstrap::setup' do
-  let(:chef_run) do
-    ChefSpec::Runner.new(
-      cookbook_path: ['../../../tmp/cookbooks'],
-      platform:      'centos',
-      version:       '6.5'
-    ).converge('bootstrap::setup')
-  end
+  let(:chef_run) { ChefSpec::SoloRunner.converge(described_recipe) }
 
   before do
     ENV['PATTERN_NAME'] = 'test_pattern'
     ENV['PATTERN_URL'] = 'test_url'
     ENV['PATTERN_REVISION'] = 'test_revision'
-    ENV['SERF_TAG_ROLE'] = 'web,ap,db'
+    ENV['ROLE'] = 'web,ap,db'
   end
 
   it 'install yum-epel' do
@@ -24,25 +19,23 @@ describe 'bootstrap::setup' do
     expect(chef_run).to include_recipe('iptables::disabled')
   end
 
-  it 'install serf' do
-    expect(chef_run).to include_recipe('serf')
-  end
-
-  it 'override serf service template' do
-    r = chef_run.find_resource(:template, '/etc/init.d/serf')
-    expect(r.cookbook).to eq('bootstrap')
+  it 'create event_handler_dir' do
+    expect(chef_run).to create_directory('/opt/consul/event_handlers').with(
+      owner: 'root',
+      group: 'root',
+      mode: 0755
+    )
   end
 
   it 'install event-handler' do
-    expect(chef_run).to create_template('/opt/serf/event_handlers/event-handler').with(
-      source: 'event-handler.erb',
-      mode: 0755,
-      variables: { event_handlers_directory: '/opt/serf/event_handlers' }
+    expect(chef_run).to create_cookbook_file('/opt/consul/event_handlers/event-handler').with(
+      source: 'event-handler',
+      mode: 0755
     )
   end
 
   it 'install action_runner.rb' do
-    expect(chef_run).to create_cookbook_file('/opt/serf/event_handlers/action_runner.rb').with(
+    expect(chef_run).to create_cookbook_file('/opt/consul/event_handlers/action_runner.rb').with(
       source: 'action_runner.rb',
       mode: 0755
     )
@@ -59,6 +52,13 @@ describe 'bootstrap::setup' do
   it 'override Consul service template' do
     r = chef_run.find_resource(:template, '/etc/init.d/consul')
     expect(r.cookbook).to eq('bootstrap')
+  end
+
+  it 'install Consul watches configuration file' do
+    expect(chef_run).to create_template('/etc/consul.d/watches.json').with(
+      source: 'watches.json.erb',
+      mode: 0755
+    )
   end
 
   it 'delete 70-persistent-net.rules extra lines' do
@@ -90,7 +90,30 @@ describe 'bootstrap::setup' do
   end
 
   it 'setup consul services information of the pattern' do
-    # TODO: implement test
+    allow(Dir).to receive(:[]).and_call_original
+    allow(Dir).to receive(:[]).with(
+      '/opt/cloudconductor/patterns/test_pattern/services/web/**/*'
+    ).and_return(%w(web1 web2))
+    allow(Dir).to receive(:[]).with(
+      '/opt/cloudconductor/patterns/test_pattern/services/ap/**/*'
+    ).and_return(%w(ap1 ap2))
+    allow(Dir).to receive(:[]).with(
+      '/opt/cloudconductor/patterns/test_pattern/services/db/**/*'
+    ).and_return(%w(db1 db2))
+    allow(File).to receive(:file?).and_return(true)
+    allow(IO).to receive(:read).and_call_original
+    allow(IO).to receive(:read).with('web1').and_return('{}')
+    allow(IO).to receive(:read).with('web2').and_return('{}')
+    allow(IO).to receive(:read).with('ap1').and_return('{}')
+    allow(IO).to receive(:read).with('ap2').and_return('{}')
+    allow(IO).to receive(:read).with('db1').and_return('{}')
+    allow(IO).to receive(:read).with('db2').and_return('{}')
+    expect(chef_run).to create_file('/etc/consul.d/web1')
+    expect(chef_run).to create_file('/etc/consul.d/web2')
+    expect(chef_run).to create_file('/etc/consul.d/ap1')
+    expect(chef_run).to create_file('/etc/consul.d/ap2')
+    expect(chef_run).to create_file('/etc/consul.d/db1')
+    expect(chef_run).to create_file('/etc/consul.d/db2')
   end
 
   it 'install serverspec' do

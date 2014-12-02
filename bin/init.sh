@@ -54,7 +54,7 @@ else
 fi
 
 log_info "execute event-handler with setup event."
-SERF_USER_EVENT="setup" /opt/serf/event_handlers/event-handler
+echo '{"ID":"0"}' | /opt/consul/event_handlers/event-handler setup
 if [ $? -eq 0 ]; then
   log_info "event-handler has finished successfully."
 else

@@ -21,17 +21,12 @@ module CloudConductorUtils
         allow(Dir).to receive(:exist?).with('/opt/cloudconductor/logs').and_return(true)
         allow(FileUtils).to receive(:mkdir_p).with('/opt/cloudconductor/logs')
         dummy_logger = Object.new
-        def dummy_logger.formatter=(prc)
-          @prc = prc
-        end
-        def dummy_logger.formatter
-          @prc
-        end
+        double('Logger', new: dummy_logger)
+        allow(dummy_logger).to receive(:formatter=)
         allow(Logger).to receive(:new).with(
           '/opt/cloudconductor/logs/testpattern_testlog.log'
         ).and_return(dummy_logger)
         logger = Pattern.pattern_logger('testpattern', 'testlog.log')
-        expect(dummy_logger.formatter).not_to be_nil
         expect(logger).not_to be_nil
       end
     end
