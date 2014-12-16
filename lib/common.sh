@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+export HOME=/root
+export PATH=/usr/local/bin:${PATH}
 export ROOT_DIR="/opt/cloudconductor"
 export LOG_DIR="${ROOT_DIR}/logs"
 export TMP_DIR="${ROOT_DIR}/tmp"
