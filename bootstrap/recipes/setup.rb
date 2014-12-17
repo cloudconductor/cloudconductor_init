@@ -24,7 +24,25 @@ cookbook_file File.join(event_handlers_dir, 'action_runner.rb') do
   mode 0755
 end
 
-include_recipe 'consul::install_binary'
+# create self-signed certificate for Consul HTTPS API
+consul_ssl_strength = node['cloudconductor']['consul']['ssl_strength']
+consul_ssl_serial = node['cloudconductor']['consul']['ssl_serial']
+consul_ssl_days = node['cloudconductor']['consul']['ssl_days']
+consul_ssl_subj = node['cloudconductor']['consul']['ssl_subj']
+consul_ssl_cert = node['cloudconductor']['consul']['ssl_cert']
+consul_ssl_key = node['cloudconductor']['consul']['ssl_key']
+bash 'create_self_signed_cerficiate' do
+  code <<-EOH
+    openssl req -new -newkey rsa:#{consul_ssl_strength} -sha1 -x509 -nodes \
+      -set_serial #{consul_ssl_serial} \
+      -days #{consul_ssl_days} \
+      -subj "#{consul_ssl_subj}" \
+      -out "#{consul_ssl_cert}" \
+      -keyout "#{consul_ssl_key}"
+  EOH
+end
+
+include_recipe 'consul::install_source'
 include_recipe 'consul::_service'
 
 # override Consul service template

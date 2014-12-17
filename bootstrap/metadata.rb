@@ -8,4 +8,4 @@ supports         'centos', '= 6.5'
 
 depends          'iptables'
 depends          'yum-epel'
-depends          'consul', '>= 0.4.2'
+depends          'consul', '>= 0.6.0'
