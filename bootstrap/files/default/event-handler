@@ -32,7 +32,7 @@ fi
 
 if [ "${EVENT}" != "setup" ]; then
   START_DATETIME="`date +'%Y%m%d%H%M%S'`"
-  write_event_handler_result "${EVENT_ID}" "${EVENT}" "null" "${START_DATETIME}" "null"
+  write_event_handler_result "${EVENT_ID}" "${EVENT}" "null" "${START_DATETIME}" "null" "null"
 fi
 
 if [ "${EVENT}" != "setup" ]; then
@@ -53,7 +53,7 @@ fi
 
 if [ "${EVENT}" != "setup" ]; then
   END_DATETIME="`date +'%Y%m%d%H%M%S'`"
-  write_event_handler_result "${EVENT_ID}" "${EVENT}" "${action_runner_result}" "${START_DATETIME}" "${END_DATETIME}"
+  write_event_handler_result "${EVENT_ID}" "${EVENT}" "${action_runner_result}" "${START_DATETIME}" "${END_DATETIME}" "${action_runner_result_log}"
 fi
 
 exit ${action_runner_result}
