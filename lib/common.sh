@@ -94,6 +94,10 @@ function write_event_handler_result() {
   curl -X PUT http://localhost:8500/v1/kv/event/${event_id_key}/`hostname` -d "${data}" >/dev/null 2>&1
 }
 
+function get_consul_acl_token() {
+  cat /etc/consul.d/default.json | jq '.acl_master_token' | sed -e 's/[^"]*"\([^"]*\)".*/\1/'
+}
+
 if [ ! -d ${LOG_DIR} ]; then
   mkdir -p ${LOG_DIR}
 fi

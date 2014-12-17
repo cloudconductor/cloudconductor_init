@@ -24,9 +24,16 @@ if [ -z "${EVENT}" ]; then
   exit 0
 fi
 
-EVENT_ID=`cat /dev/stdin | egrep -o '"ID":"[^"]*"' | awk -F: '{print $2}' | sed -e 's/"//g'`
+STDIN_DATA="`cat /dev/stdin`"
+EVENT_ID=`echo "${STDIN_DATA}" | jq '.[] | .ID' | sed -e 's/[^"]*"\([^"]*\)".*/\1/'`
 if [ -z "${EVENT_ID}" ]; then
   log_info "a config-load trigger was ignored."
+  exit 0
+fi
+
+PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
+if [ "`get_consul_acl_token`" != "${PAYLOAD}" ]; then
+  log_info "event token did not match. ignored."
   exit 0
 fi
 
