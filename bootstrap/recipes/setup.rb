@@ -121,6 +121,12 @@ roles.each do |role|
   end
 end
 
+# install jq
+package 'jq' do
+  action :install
+  options '--enablerepo=epel'
+end
+
 # install serverspec
 gem_package 'serverspec' do
   action :install
