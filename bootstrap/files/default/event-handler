@@ -31,19 +31,21 @@ if [ -z "${EVENT_ID}" ]; then
   exit 0
 fi
 
-PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
-if [ "`get_consul_acl_token`" != "${PAYLOAD}" ]; then
-  log_info "event token did not match. ignored."
-  exit 0
-fi
-
 if [ "${EVENT}" != "setup" ]; then
   START_DATETIME="`date +'%Y%m%d%H%M%S'`"
   write_event_handler_result "${EVENT_ID}" "${EVENT}" "null" "${START_DATETIME}" "null" "null"
+  ROLE=`read_config_value "ROLE"`
+  CONSUL_SECURITY_KEY=`read_config_value "CONSUL_SECURITY_KEY"`
+else
+  write_config_value "CONSUL_SECURITY_KEY" "${CONSUL_SECURITY_KEY}"
 fi
 
-if [ "${EVENT}" != "setup" ]; then
-  ROLE=`grep ROLE /opt/cloudconductor/config |  awk -F= '{print $2}'`
+PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
+echo "PAYLOAD=${PAYLOAD}" >> /tmp/p2
+echo "CONSUL_SECURITY_KEY=${CONSUL_SECURITY_KEY}" >> /tmp/p2
+if [ "${CONSUL_SECURITY_KEY}" != "${PAYLOAD}" ]; then
+  log_info "event token did not match. ignored."
+  exit 0
 fi
 
 log_info "event-handler has started with: ROLE[${ROLE}], EVENT[${EVENT}], EVENT_ID[${EVENT_ID}]"

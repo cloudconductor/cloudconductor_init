@@ -54,7 +54,8 @@ else
 fi
 
 log_info "execute event-handler with setup event."
-echo '{"ID":"0"}' | /opt/consul/event_handlers/event-handler setup
+CONSUL_SECURITY_KEY_BASE64=`echo "${CONSUL_SECURITY_KEY}" | base64`
+echo "[{\"ID\":\"0\", \"Payload\":\"${CONSUL_SECURITY_KEY_BASE64}\"}]" | /bin/sh /opt/consul/event_handlers/event-handler setup
 if [ $? -eq 0 ]; then
   log_info "event-handler has finished successfully."
 else

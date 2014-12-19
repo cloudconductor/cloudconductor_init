@@ -21,6 +21,7 @@ export TMP_DIR="${ROOT_DIR}/tmp"
 export BIN_DIR="${ROOT_DIR}/bin"
 export FILECACHE_DIR="${TMP_DIR}/cache"
 export CHEF_ENV_FILE="/etc/profile.d/chef.sh"
+export CONFIG_FILE="${ROOT_DIR}/config"
 
 function chefdk_path() {
   echo "`cat ${CHEF_ENV_FILE} | awk -F: '{print $2}'`"
@@ -55,6 +56,19 @@ function log_error() {
 function log_fatal() {
   message="$1"
   log "FATAL" "${message}"
+}
+
+function write_config_value() {
+  touch ${CONFIG_FILE}
+  if [ -n "`grep \" $1=\" ${CONFIG_FILE}`" ]; then
+    sed -ri "s/ $1=.*/ $1=\"$2\"/" ${CONFIG_FILE}
+  else
+    echo "export $1=\"$2\"" >> ${CONFIG_FILE}
+  fi
+}
+
+function read_config_value() {
+  echo "`(. ${CONFIG_FILE}; echo ${CONSUL_SECURITY_KEY})`"
 }
 
 function write_event_handler_result() {
@@ -92,10 +106,6 @@ function write_event_handler_result() {
   fi
   data="{\"event_id\":${event_id},\"type\":${type},\"result\":${result},\"start_datetime\":${start_datetime},\"end_datetime\":${end_datetime},\"log\":${running_log}}"
   curl -X PUT http://localhost:8500/v1/kv/event/${event_id_key}/`hostname` -d "${data}" >/dev/null 2>&1
-}
-
-function get_consul_acl_token() {
-  cat /etc/consul.d/default.json | jq '.acl_master_token' | sed -e 's/[^"]*"\([^"]*\)".*/\1/'
 }
 
 if [ ! -d ${LOG_DIR} ]; then
