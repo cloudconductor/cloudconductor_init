@@ -104,8 +104,9 @@ function write_event_handler_result() {
   else
     running_log="\"$6\""
   fi
+  CONSUL_SECURITY_KEY="`read_config_value CONSUL_SECURITY_KEY`"
   data="{\"event_id\":${event_id},\"type\":${type},\"result\":${result},\"start_datetime\":${start_datetime},\"end_datetime\":${end_datetime},\"log\":${running_log}}"
-  curl -X PUT http://localhost:8500/v1/kv/event/${event_id_key}/`hostname` -d "${data}" >/dev/null 2>&1
+  curl -X PUT "http://localhost:8500/v1/kv/event/${event_id_key}/`hostname`?token=${CONSUL_SECURITY_KEY}" -d "${data}" >/dev/null 2>&1
 }
 
 if [ ! -d ${LOG_DIR} ]; then
