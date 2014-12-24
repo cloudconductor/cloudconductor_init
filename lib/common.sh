@@ -102,7 +102,7 @@ function write_event_handler_result() {
   if [ "$6" == "null" ]; then
     running_log="null"
   else
-    running_log="\"$6\""
+    running_log="`echo \"$6\" | ruby -e \"puts STDIN.read.inspect\"`"
   fi
   CONSUL_SECURITY_KEY="`read_config_value CONSUL_SECURITY_KEY`"
   data="{\"event_id\":${event_id},\"type\":${type},\"result\":${result},\"start_datetime\":${start_datetime},\"end_datetime\":${end_datetime},\"log\":${running_log}}"
