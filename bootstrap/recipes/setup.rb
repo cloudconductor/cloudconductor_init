@@ -92,7 +92,6 @@ end
 # install serverspec
 gem_package 'serverspec' do
   action :install
-  version '1.16.0'
 end
 
 # install hping3
