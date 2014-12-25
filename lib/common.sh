@@ -63,7 +63,7 @@ function write_config_value() {
   if [ -n "`grep \" $1=\" ${CONFIG_FILE}`" ]; then
     sed -ri "s/ $1=.*/ $1=\"$2\"/" ${CONFIG_FILE}
   else
-    echo "export $1=\"$2\"" >> ${CONFIG_FILE}
+    echo "$1=\"$2\"" >> ${CONFIG_FILE}
   fi
 }
 
