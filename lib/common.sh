@@ -68,7 +68,7 @@ function write_config_value() {
 }
 
 function read_config_value() {
-  echo "`(. ${CONFIG_FILE}; echo ${CONSUL_SECURITY_KEY})`"
+  echo "`(. ${CONFIG_FILE}; echo $1)`"
 }
 
 function write_event_handler_result() {
