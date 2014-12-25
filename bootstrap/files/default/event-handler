@@ -41,8 +41,8 @@ else
 fi
 
 PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
-echo "PAYLOAD=${PAYLOAD}" >> /tmp/p2
-echo "CONSUL_SECURITY_KEY=${CONSUL_SECURITY_KEY}" >> /tmp/p2
+echo "PAYLOAD=${PAYLOAD}"
+echo "CONSUL_SECURITY_KEY=${CONSUL_SECURITY_KEY}"
 if [ "${CONSUL_SECURITY_KEY}" != "${PAYLOAD}" ]; then
   log_info "event token did not match. ignored."
   exit 0
