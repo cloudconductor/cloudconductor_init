@@ -36,11 +36,11 @@ PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
 
 get_pid() {
-    cat "$PIDFILE"
+    pgrep -f @consul_binary
 }
 
 is_running() {
-    [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
+    ps "`get_pid`" > /dev/null 2>&1
 }
 
 case "$1" in
@@ -49,8 +49,7 @@ case "$1" in
         echo "$NAME already running"
     else
         echo "Starting $NAME"
-        $CMD >> "$LOGFILE" &
-        echo $! > "$PIDFILE"
+        su -l `id -u -n` -c "$CMD >> \"$LOGFILE\" &"
         if ! is_running; then
             echo "Unable to start $NAME, see $LOGFILE"
             exit 1
@@ -77,9 +76,6 @@ case "$1" in
             exit 1
         else
             echo "$NAME stopped"
-            if [ -f "$PIDFILE" ]; then
-                rm "$PIDFILE"
-            fi
         fi
     else
         echo "$NAME not running"
