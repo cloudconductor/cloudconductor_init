@@ -36,7 +36,7 @@ PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
 
 get_pid() {
-    pgrep -f @consul_binary
+    pgrep -f <%= @consul_binary %>
 }
 
 is_running() {
