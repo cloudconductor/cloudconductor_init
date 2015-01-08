@@ -36,10 +36,10 @@ if [ "${EVENT}" != "setup" ]; then
   write_event_handler_result "${EVENT_ID}" "${EVENT}" "null" "${START_DATETIME}" "null" "null"
   ROLE=`read_config_value "ROLE"`
   CONSUL_SECURITY_KEY=`read_config_value "CONSUL_SECURITY_KEY"`
-  export ${CONSUL_SECURITY_KEY}
 else
   write_config_value "CONSUL_SECURITY_KEY" "${CONSUL_SECURITY_KEY}"
 fi
+export CONSUL_SECURITY_KEY
 
 PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
 if [ "${CONSUL_SECURITY_KEY}" != "${PAYLOAD}" ]; then
