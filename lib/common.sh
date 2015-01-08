@@ -68,7 +68,7 @@ function write_config_value() {
 }
 
 function read_config_value() {
-  echo "`(. ${CONFIG_FILE}; echo $1)`"
+  echo "`(. ${CONFIG_FILE}; echo ${!1})`"
 }
 
 function write_event_handler_result() {
