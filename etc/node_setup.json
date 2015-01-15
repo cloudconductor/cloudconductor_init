@@ -1,7 +1,10 @@
 {
-    "name": "bootstrap",
-    "description": "Setup fundamental environment",
-    "run_list" : [
-        "recipe[bootstrap::setup]"
-    ]
+  "name": "bootstrap",
+  "description": "Setup fundamental environment",
+  "go": {
+    "url": "https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz"
+  },
+  "run_list" : [
+    "recipe[bootstrap::setup]"
+  ]
 }
