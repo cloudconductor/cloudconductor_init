@@ -60,8 +60,8 @@ function log_fatal() {
 
 function write_config_value() {
   touch ${CONFIG_FILE}
-  if [ -n "`grep \" $1=\" ${CONFIG_FILE}`" ]; then
-    sed -ri "s/ $1=.*/ $1=\"$2\"/" ${CONFIG_FILE}
+  if [ -n "`egrep \"^$1=\" ${CONFIG_FILE}`" ]; then
+    sed -ri "s/^$1=.*/$1=\"$2\"/" ${CONFIG_FILE}
   else
     echo "$1=\"$2\"" >> ${CONFIG_FILE}
   fi
