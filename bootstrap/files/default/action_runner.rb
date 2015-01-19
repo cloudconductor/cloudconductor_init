@@ -19,58 +19,57 @@ require 'active_support'
 require 'yaml'
 
 class ActionRunner
-  def initialize(role, event)
-    @root_dir = '/opt/cloudconductor'
-    log_dir = File.join(@root_dir, 'logs')
-    log_file = File.join(log_dir, 'event-handler.log')
-    FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
-    @logger = Logger.new(log_file)
-    @logger.formatter = proc do |severity, datetime, _progname, message|
-      "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
-    end
-    @role = role
-    @event = event
-  end
-
-  def execute
+  def self.execute(role, event)
+    @@root_dir = '/opt/cloudconductor'
+    @@role = role
+    @@event = event
+    init_logger
     valid_events = %w(setup configure deploy backup restore spec)
-    if valid_events.include?(@event)
+    if valid_events.include?(@@event)
       execute_pre_configure
       execute_pattern('platform')
       execute_pattern('optional')
     else
-      @logger.info("event [#{@event}] is ignored.")
+      @@logger.info("event [#{@@event}] is ignored.")
     end
   end
 
-  private
+  def self.init_logger
+    log_dir = File.join(@@root_dir, 'logs')
+    log_file = File.join(log_dir, 'event-handler.log')
+    @@logger = Logger.new(log_file)
+    @@logger.formatter = proc do |severity, datetime, _progname, message|
+      "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
+    end
+  end
 
-  def execute_pre_configure
-    return unless @event == 'configure'
-    @logger.info('execute pre-configure.')
-    bin_dir = File.join(@root_dir, 'bin')
+  def self.execute_pre_configure
+    return unless @@event == 'configure'
+    @@logger.info('execute pre-configure.')
+    bin_dir = File.join(@@root_dir, 'bin')
     pre_configure_result = system("cd #{bin_dir}; /bin/sh ./configure.sh")
     if pre_configure_result
-      @logger.info('pre-configure executed successfully.')
+      @@logger.info('pre-configure executed successfully.')
     else
       fail
     end
   end
 
-  def execute_pattern(type)
-    patterns_root_dir = File.join(@root_dir, 'patterns')
+  def self.execute_pattern(type)
+    patterns_root_dir = File.join(@@root_dir, 'patterns')
     Dir.glob("#{patterns_root_dir}/*/").each do |pattern_dir|
       metadata_file = File.join(pattern_dir, 'metadata.yml')
       next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == type
-      @logger.info("execute pattern [#{pattern_dir}]")
-      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@role} #{@event}")
+      @@logger.info("execute pattern [#{pattern_dir}]")
+      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@@role} #{@@event}")
       if result
-        @logger.info('executed successfully.')
+        @@logger.info('executed successfully.')
       else
         fail
       end
     end
   end
+  private_class_method :init_logger, :execute_pre_configure, :execute_pattern
 end
 
-ActionRunner.new(ARGV[0], ARGV[1]).execute if __FILE__ == $PROGRAM_NAME
+ActionRunner.execute(ARGV[0], ARGV[1]) if __FILE__ == $PROGRAM_NAME
