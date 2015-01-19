@@ -23,12 +23,12 @@ default['consul']['extra_params'] = {
   'key_file' => node['cloudconductor']['consul']['ssl_key']
 }
 
-unless "#{ENV['CONSUL_SECURITY_KEY']}".empty?
-  default['consul']['encrypt'] = ENV['CONSUL_SECURITY_KEY']
+unless "#{ENV['CONSUL_SECRET_KEY']}".empty?
+  default['consul']['encrypt'] = ENV['CONSUL_SECRET_KEY']
   default['consul']['extra_params'].merge!(
     'acl_datacenter' => node['consul']['datacenter'],
     'acl_default_policy' => 'deny',
-    'acl_master_token' => ENV['CONSUL_SECURITY_KEY'],
+    'acl_master_token' => ENV['CONSUL_SECRET_KEY'],
     'acl_token' => 'nothing'
   )
 end
