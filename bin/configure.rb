@@ -37,6 +37,9 @@ class PreConfigureRunner
     FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
     log_file = File.join(log_dir, 'bootstrap.log')
     @@logger = Logger.new(log_file)
+    @@logger.formatter = proc do |severity, datetime, _progname, message|
+      "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
+    end
   end
 
   def self.host_info
