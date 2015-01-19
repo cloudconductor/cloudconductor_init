@@ -17,6 +17,9 @@ source /opt/cloudconductor/lib/common.sh
 
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
+
+log_info "set chefdk_path."
+echo "export PATH=\$PATH:/opt/chefdk/embedded/bin" > ${CHEF_ENV_FILE}
 export PATH=`chefdk_path`:${PATH}
 
 cd ${TMP_DIR}
