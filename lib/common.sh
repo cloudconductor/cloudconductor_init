@@ -27,37 +27,46 @@ function chefdk_path() {
   echo "`cat ${CHEF_ENV_FILE} | awk -F: '{print $2}'`"
 }
 
+# $1: log level
+# $2: log message
 function log() {
   level="$1"
   message="$2"
   echo "[`date +'%Y-%m-%dT%H:%M:%S'`] ${level}: ${message}" >> ${LOG_FILE}
 }
 
+# called from log() internally
 function log_debug() {
   message="$1"
   log "DEBUG" "${message}"
 }
 
+# called from log() internally
 function log_info() {
   message="$1"
   log "INFO" "${message}"
 }
 
+# called from log() internally
 function log_warn() {
   message="$1"
   log "WARN" "${message}"
 }
 
+# called from log() internally
 function log_error() {
   message="$1"
   log "ERROR" "${message}"
 }
 
+# called from log() internally
 function log_fatal() {
   message="$1"
   log "FATAL" "${message}"
 }
 
+# $1: config key
+# $2: config value
 function write_config_value() {
   touch ${CONFIG_FILE}
   if [ -n "`egrep \"^$1=\" ${CONFIG_FILE}`" ]; then
@@ -67,10 +76,17 @@ function write_config_value() {
   fi
 }
 
+# $1: config key
 function read_config_value() {
   echo "`(. ${CONFIG_FILE}; echo ${!1})`"
 }
 
+# $1: event id
+# $2: event type (ex. configure, deploy)
+# $3: result code
+# $4: datetime the event has started at
+# $5: datetime tha event has finished at
+# &6: running log
 function write_event_handler_result() {
   if [ "$1" == "null" ]; then
     event_id="null"
