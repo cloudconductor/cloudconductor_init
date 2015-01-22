@@ -49,7 +49,7 @@ case "$1" in
         echo "$NAME already running"
     else
         echo "Starting $NAME"
-        su -l `id -u -n` -c "$CMD >> \"$LOGFILE\" &"
+        $CMD >> "$LOGFILE" &
         if ! is_running; then
             echo "Unable to start $NAME, see $LOGFILE"
             exit 1
