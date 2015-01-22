@@ -20,11 +20,11 @@ if [ -f /opt/cloudconductor/config ]; then
   source /opt/cloudconductor/config
 fi
 
-if [ -n "${SERF_JOIN_ADDRESS}" ]; then
-  if [ -n "`ip addr | grep " ${SERF_JOIN_ADDRESS}/"`" ]; then
+if [ -n "${JOIN_ADDRESS}" ]; then
+  if [ -n "`ip addr | grep " ${JOIN_ADDRESS}/"`" ]; then
     CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
   else
-    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -join ${SERF_JOIN_ADDRESS} -config-dir <%= @config_dir %>"
+    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -join ${JOIN_ADDRESS} -config-dir <%= @config_dir %>"
   fi
 else
   CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
@@ -36,11 +36,11 @@ PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
 
 get_pid() {
-    cat "$PIDFILE"
+    pgrep -f <%= @consul_binary %>
 }
 
 is_running() {
-    [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
+    ps "`get_pid`" > /dev/null 2>&1
 }
 
 case "$1" in
@@ -50,7 +50,6 @@ case "$1" in
     else
         echo "Starting $NAME"
         $CMD >> "$LOGFILE" &
-        echo $! > "$PIDFILE"
         if ! is_running; then
             echo "Unable to start $NAME, see $LOGFILE"
             exit 1
@@ -77,9 +76,6 @@ case "$1" in
             exit 1
         else
             echo "$NAME stopped"
-            if [ -f "$PIDFILE" ]; then
-                rm "$PIDFILE"
-            fi
         fi
     else
         echo "$NAME not running"

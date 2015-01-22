@@ -1,76 +1,69 @@
-# -*- coding: utf-8 -*-
-# Copyright 2014 TIS Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-require 'fileutils'
 require 'logger'
-require 'active_support'
 require 'yaml'
 
 class ActionRunner
-  def initialize
-    @root_dir = '/opt/cloudconductor'
-    log_dir = File.join(@root_dir, 'logs')
-    log_file = File.join(log_dir, 'event-handler.log')
-    FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
-    @logger = Logger.new(log_file)
-    @logger.formatter = proc do |severity, datetime, _progname, message|
-      "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
-    end
-    @serf_user_event = ENV['SERF_USER_EVENT']
-    @serf_tag_role = ENV['SERF_TAG_ROLE']
-  end
-
-  def execute
-    valid_events = %w(setup configure deploy backup restore spec)
-    if valid_events.include?(@serf_user_event)
-      execute_pre_configure
-      execute_pattern('platform')
-      execute_pattern('optional')
-    else
-      @logger.info("event [#{@serf_user_event}] is ignored.")
-    end
-  end
-
-  private
-
-  def execute_pre_configure
-    return unless @serf_user_event == 'configure'
-    @logger.info('execute pre-configure.')
-    bin_dir = File.join(@root_dir, 'bin')
-    pre_configure_result = system("cd #{bin_dir}; /bin/sh ./configure.sh")
-    if pre_configure_result
-      @logger.info('pre-configure executed successfully.')
-    else
-      fail
-    end
-  end
-
-  def execute_pattern(type)
-    patterns_root_dir = File.join(@root_dir, 'patterns')
-    Dir.glob("#{patterns_root_dir}/*/").each do |pattern_dir|
-      metadata_file = File.join(pattern_dir, 'metadata.yml')
-      next unless File.exist?(metadata_file) && YAML.load_file(metadata_file)['type'] == type
-      @logger.info("execute pattern [#{pattern_dir}]")
-      result = system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{@serf_tag_role} #{@serf_user_event}")
-      if result
-        @logger.info('executed successfully.')
-      else
-        fail
+  class << self
+    def execute(role, event)
+      pre_configure if event == 'configure'
+      patterns = pattern_dirs('platform') + pattern_dirs('optional')
+      patterns.each do |pattern_dir|
+        send_event(pattern_dir, role, event)
       end
+    end
+
+    private
+
+    def pre_configure
+      bin_dir = File.join(root_dir, 'bin')
+      if system("cd #{bin_dir}; /bin/sh ./configure.sh")
+        logger.info('pre-configure executed successfully.')
+      else
+        logger.error("pre-configure failed. configure.sh returns #{$?}.")
+        exit 1
+      end
+    end
+
+    def send_event(pattern_dir, role, event)
+      if system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{role} #{event}")
+        logger.info("#{event} event executed on #{File.basename(pattern_dir)} successfully")
+      else
+        logger.error("#{event} event failed on #{File.basename(pattern_dir)}. returns #{$?}.")
+        exit 1
+      end
+    end
+
+    def pattern_dirs(type)
+      patterns_root_dir = File.join(root_dir, 'patterns')
+      Dir.glob("#{patterns_root_dir}/*/").inject([]) do |pattern_dirs, pattern_dir|
+        metadata_file = File.join(pattern_dir, 'metadata.yml')
+        next unless File.exist?(metadata_file)
+        pattern_type = YAML.load_file(metadata_file)['type']
+        pattern_dirs << pattern_dir if pattern_type == type
+        pattern_dirs
+      end
+    end
+
+    def root_dir
+      '/opt/cloudconductor'
+    end
+
+    def logger
+      @logger ||= init_logger
+    end
+
+    def init_logger
+      log_file = File.join(root_dir, 'logs', 'event-handler.log')
+      logger = Logger.new(log_file)
+      logger.formatter = proc do |severity, datetime, _progname, message|
+        "[#{datetime.strftime('%Y-%m-%dT%H:%M:%S')}] #{severity}: #{message}\n"
+      end
+      logger
     end
   end
 end
 
-ActionRunner.new.execute if __FILE__ == $PROGRAM_NAME
+if __FILE__ == $PROGRAM_NAME
+  role = ARGV[0]
+  event = ARGV[1]
+  ActionRunner.execute(role, event)
+end

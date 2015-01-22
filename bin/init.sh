@@ -17,12 +17,16 @@ source /opt/cloudconductor/lib/common.sh
 
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
+
+log_info "set chefdk_path."
+echo "export PATH=\$PATH:/opt/chefdk/embedded/bin" > ${CHEF_ENV_FILE}
 export PATH=`chefdk_path`:${PATH}
 
 cd ${TMP_DIR}
 log_info "install cloud_conductor_utils."
 git clone https://github.com/cloudconductor/cloud_conductor_utils.git
 cd cloud_conductor_utils
+git checkout feature/consul_security
 rake build
 cd pkg
 gem install ./*.gem
@@ -54,7 +58,8 @@ else
 fi
 
 log_info "execute event-handler with setup event."
-SERF_USER_EVENT="setup" /opt/serf/event_handlers/event-handler
+CONSUL_SECRET_KEY_BASE64=`echo "${CONSUL_SECRET_KEY}" | base64`
+echo "[{\"ID\":\"0\", \"Payload\":\"${CONSUL_SECRET_KEY_BASE64}\"}]" | /bin/sh /opt/consul/event_handlers/event-handler setup
 if [ $? -eq 0 ]; then
   log_info "event-handler has finished successfully."
 else
