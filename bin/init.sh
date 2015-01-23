@@ -26,7 +26,7 @@ cd ${TMP_DIR}
 log_info "install cloud_conductor_utils."
 git clone https://github.com/cloudconductor/cloud_conductor_utils.git
 cd cloud_conductor_utils
-git checkout feature/consul_security
+git checkout develop 
 rake build
 cd pkg
 gem install ./*.gem
