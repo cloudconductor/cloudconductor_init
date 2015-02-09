@@ -15,6 +15,12 @@
 #                       * Multi Datacenter
 ### END INIT INFO
 
+if [ -f <%= node['consul']['etc_config_dir'] %> ]; then
+. <%= node['consul']['etc_config_dir'] %>
+fi
+
+export GOMAXPROCS=${GOMAXPROCS}
+
 # load config
 if [ -f /opt/cloudconductor/config ]; then
   source /opt/cloudconductor/config
@@ -22,12 +28,12 @@ fi
 
 if [ -n "${JOIN_ADDRESS}" ]; then
   if [ -n "`ip addr | grep " ${JOIN_ADDRESS}/"`" ]; then
-    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
+    CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= node['consul']['config_dir'] %>"
   else
-    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -join ${JOIN_ADDRESS} -config-dir <%= @config_dir %>"
+    CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -join ${JOIN_ADDRESS} -config-dir <%= node['consul']['config_dir'] %>"
   fi
 else
-  CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
+  CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= node['consul']['config_dir'] %>"
 fi
 
 NAME="consul"
@@ -65,8 +71,8 @@ case "$1" in
     stop)
     if is_running; then
         echo -n "Stopping $NAME..."
-        kill `get_pid`
-        for i in {1..10}
+        kill -INT `get_pid`
+        for i in 1 2 3 4 5 6 7 8 9 10
         do
             if ! is_running; then
                 break
