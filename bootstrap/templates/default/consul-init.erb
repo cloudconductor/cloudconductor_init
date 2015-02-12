@@ -41,11 +41,7 @@ NAME="consul"
 PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
 
-if [ -z "${no_proxy}" ]; then
-  CMD="export no_proxy=0.0.0.0; $CMD"
-else
-  CMD="export no_proxy=${no_proxy},0.0.0.0; $CMD"
-fi
+CMD="no_proxy=0.0.0.0,\${no_proxy} $CMD"
 
 get_pid() {
     cat "$PIDFILE"
