@@ -41,10 +41,13 @@ else
 fi
 export CONSUL_SECRET_KEY
 
-PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload' | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
-if [ "${CONSUL_SECRET_KEY}" != "${PAYLOAD}" ]; then
-  log_info "event token did not match. ignored."
-  exit 0
+PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload'`
+if [ "${PAYLOAD}" != "null" ]; then
+  PAYLOAD=`echo "${PAYLOAD}" | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
+  if [ "${CONSUL_SECRET_KEY}" != "${PAYLOAD}" ]; then
+    log_info "event token did not match. ignored."
+    exit 0
+  fi
 fi
 
 log_info "event-handler has started with: ROLE[${ROLE}], EVENT[${EVENT}], EVENT_ID[${EVENT_ID}]"
