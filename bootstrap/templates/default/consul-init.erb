@@ -41,7 +41,7 @@ NAME="consul"
 PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
 
-CMD="no_proxy=0.0.0.0,\${no_proxy} $CMD"
+CMD="no_proxy=0.0.0.0,\${no_proxy} nohup $CMD"
 
 get_pid() {
     cat "$PIDFILE"
@@ -57,7 +57,7 @@ case "$1" in
         echo "$NAME already running"
     else
         echo "Starting $NAME"
-        su -l `id -u -n` -c "$CMD >> \"$LOGFILE\" & echo \$! > \"$PIDFILE\""
+        su -l `id -u -n` -c "$CMD >> \"$LOGFILE\" 2>&1 & echo \$! > \"$PIDFILE\""
         if ! is_running; then
             echo "Unable to start $NAME, see $LOGFILE"
             exit 1
