@@ -126,6 +126,12 @@ function write_event_handler_result() {
   curl -X PUT "http://localhost:8500/v1/kv/event/${event_id_key}/`hostname`?token=${CONSUL_SECRET_KEY_ENCODED}" -d "${data}" >/dev/null 2>&1
 }
 
+function enable_service_acl() {
+  CONSUL_SECRET_KEY="`read_config_value CONSUL_SECRET_KEY`"
+  CONSUL_SECRET_KEY_ENCODED="`ruby -e \"require 'cgi'; puts CGI::escape('${CONSUL_SECRET_KEY}')\"`"
+  curl -X PUT "http://localhost:8500/v1/acl/update?token=${CONSUL_SECRET_KEY_ENCODED}" -d '{"ID": "anonymous", "Name": "anonymous", "Type": "client", "Rules": "key \"/\" {policy = \"deny\"} service \"\" {policy = \"write\"}"}' >/dev/null 2>&1
+}
+
 if [ ! -d ${LOG_DIR} ]; then
   mkdir -p ${LOG_DIR}
 fi

@@ -29,7 +29,7 @@ unless "#{ENV['CONSUL_SECRET_KEY']}".empty?
     'acl_datacenter' => node['consul']['datacenter'],
     'acl_default_policy' => 'deny',
     'acl_master_token' => ENV['CONSUL_SECRET_KEY'],
-    'acl_token' => 'nothing'
+    'acl_token' => 'anonymous'
   )
 end
 
