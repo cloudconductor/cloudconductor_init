@@ -40,6 +40,7 @@ else
   write_config_value "CONSUL_SECRET_KEY" "${CONSUL_SECRET_KEY}"
 fi
 export CONSUL_SECRET_KEY
+export ROLE
 
 PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload'`
 if [ "${PAYLOAD}" != "null" ]; then
