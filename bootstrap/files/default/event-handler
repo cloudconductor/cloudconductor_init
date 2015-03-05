@@ -41,6 +41,8 @@ else
 fi
 export CONSUL_SECRET_KEY
 export ROLE
+export EVENT
+export EVENT_ID
 
 PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload'`
 if [ "${PAYLOAD}" != "null" ]; then
