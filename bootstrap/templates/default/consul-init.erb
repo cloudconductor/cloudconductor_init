@@ -28,8 +28,8 @@ fi
 
 # generate consul command from metadata
 if [ -n "${STACK_NAME}" -a -n "${RESOURCE_NAME}" ]; then
-  CLUSTER_ADDRESSES=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} | jq .ClusterAddresses | sed -e 's/"\([^"]*\)"/\1/'`
-  FRONTEND=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} | jq .Frontend | sed -e 's/"\([^"]*\)"/\1/'`
+  CLUSTER_ADDRESSES=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} --region ${REGION} | jq .ClusterAddresses | sed -e 's/"\([^"]*\)"/\1/'`
+  FRONTEND=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} --region ${REGION} | jq .Frontend | sed -e 's/"\([^"]*\)"/\1/'`
 
   JOIN_ADDRESSES=""
   BOOTSTRAP_EXPECT=0
