@@ -26,12 +26,28 @@ if [ -f /opt/cloudconductor/config ]; then
   source /opt/cloudconductor/config
 fi
 
-if [ -n "${JOIN_ADDRESS}" ]; then
-  if [ -n "`ip addr | grep " ${JOIN_ADDRESS}/"`" ]; then
-    CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= node['consul']['config_dir'] %>"
-  else
-    CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -join ${JOIN_ADDRESS} -config-dir <%= node['consul']['config_dir'] %>"
+# generate consul command from metadata
+if [ -n "${STACK_NAME}" -a -n "${RESOURCE_NAME}" ]; then
+  CLUSTER_ADDRESSES=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} | jq .ClusterAddresses | sed -e 's/"\([^"]*\)"/\1/'`
+  FRONTEND=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} | jq .Frontend | sed -e 's/"\([^"]*\)"/\1/'`
+
+  JOIN_ADDRESSES=""
+  BOOTSTRAP_EXPECT=0
+
+  IFS=','
+  for JOIN_ADDRESS in $CLUSTER_ADDRESSES;
+  do
+    BOOTSTRAP_EXPECT=`expr $BOOTSTRAP_EXPECT + 1`
+    JOIN_ADDRESSES="${JOIN_ADDRESSES} -join ${JOIN_ADDRESS}"
+  done
+
+  CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 ${JOIN_ADDRESSES}"
+
+  if [ -n "$FRONTEND" -a "$FRONTEND" = "true" ]; then
+    CMD="$CMD -bootstrap-expect ${BOOTSTRAP_EXPECT}"
   fi
+
+  CMD="$CMD -config-dir <%= node['consul']['config_dir'] %>"
 else
   CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= node['consul']['config_dir'] %>"
 fi
