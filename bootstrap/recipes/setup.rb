@@ -90,14 +90,6 @@ ruby_block 'delete consul data' do
   action :nothing
 end
 
-# stop Consul and delete its data at the end forcely by notification
-ruby_block 'stop consul' do
-  block do
-  end
-  notifies :stop, 'service[consul]', :delayed
-  notifies :run, 'ruby_block[delete consul data]', :delayed
-end
-
 # checkout pattern
 git "/opt/cloudconductor/patterns/#{pattern_name}" do
   repository "#{node['cloudconductor']['pattern_url']}"
@@ -111,14 +103,18 @@ link "/opt/cloudconductor/logs/#{pattern_name}" do
 end
 
 # setup consul services information of the pattern
-roles = node['cloudconductor']['role'].split(',')
-roles << 'all'
-roles.each do |role|
-  Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|
-    file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
-      content IO.read(service_file)
-    end if File.file?(service_file)
+ruby_block 'install service' do
+  block do
+    roles = node['cloudconductor']['role'].split(',')
+    roles << 'all'
+    roles.each do |role|
+      Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|
+        FileUtils.cp(service_file, "/etc/consul.d/#{Pathname.new(service_file).basename}")
+      end
+    end
   end
+  notifies :stop, 'service[consul]', :delayed
+  notifies :run, 'ruby_block[delete consul data]', :delayed
 end
 
 # install jq
