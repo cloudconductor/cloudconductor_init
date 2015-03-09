@@ -101,19 +101,19 @@ function write_event_handler_result() {
     type="\"$2\""
   fi
   if [ "$3" == "null" ]; then
-    result="null"
+    return_code="null"
   else
-    result="\"$3\""
+    return_code="\"$3\""
   fi
   if [ "$4" == "null" ]; then
-    start_datetime="null"
+    started_at="null"
   else
-    start_datetime="\"$4\""
+    started_at="\"$4\""
   fi
   if [ "$5" == "null" ]; then
-    end_datetime="null"
+    finished_at="null"
   else
-    end_datetime="\"$5\""
+    finished_at="\"$5\""
   fi
   if [ "$6" == "null" ]; then
     running_log="null"
@@ -122,7 +122,7 @@ function write_event_handler_result() {
   fi
   CONSUL_SECRET_KEY="`read_config_value CONSUL_SECRET_KEY`"
   CONSUL_SECRET_KEY_ENCODED="`ruby -e \"require 'cgi'; puts CGI::escape('${CONSUL_SECRET_KEY}')\"`"
-  data="{\"event_id\":${event_id},\"type\":${type},\"result\":${result},\"start_datetime\":${start_datetime},\"end_datetime\":${end_datetime},\"log\":${running_log}}"
+  data="{\"event_id\":${event_id},\"type\":${type},\"return_code\":${return_code},\"started_at\":${started_at},\"finished_at\":${finished_at},\"log\":${running_log}}"
   curl -X PUT "http://localhost:8500/v1/kv/event/${event_id_key}/`hostname`?token=${CONSUL_SECRET_KEY_ENCODED}" -d "${data}" >/dev/null 2>&1
 }
 
