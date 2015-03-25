@@ -4,7 +4,10 @@ require 'yaml'
 class ActionRunner
   class << self
     def execute(role, event)
-      pre_configure if event == 'configure'
+      if event == 'configure'
+        pre_configure
+        sleep 30
+      end
       patterns = pattern_dirs('platform') + pattern_dirs('optional')
       patterns.each do |pattern_dir|
         send_event(pattern_dir, role, event)
