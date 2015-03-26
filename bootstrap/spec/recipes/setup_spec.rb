@@ -85,7 +85,7 @@ describe 'bootstrap::setup' do
   end
 
   it 'setup consul services information of the pattern' do
-    expect(chef_run).to run_ruby_block('install service') 
+    expect(chef_run).to run_ruby_block('install service')
     r = chef_run.find_resource(:ruby_block, 'install service')
     expect(r).to notify('service[consul]').to(:stop).delayed
     expect(r).to notify('ruby_block[delete consul data]').to(:run).delayed
