@@ -1,0 +1,35 @@
+DEPENDENCIES
+  bootstrap
+    path: ../bootstrap
+  consul
+  iptables
+  yum-epel
+
+GRAPH
+  apt (2.7.0)
+  bootstrap (0.0.1)
+    consul (>= 0.6.0)
+    iptables (>= 0.0.0)
+    yum-epel (>= 0.0.0)
+  build-essential (2.2.1)
+  consul (0.9.0)
+    chef-provisioning (>= 0.0.0)
+    golang (~> 1.4)
+    libarchive (>= 0.0.0)
+    runit (>= 0.0.0)
+    yum-repoforge (>= 0.0.0)
+  golang (1.5.0)
+  iptables (0.14.1)
+  libarchive (0.4.2)
+    apt (~> 2.5)
+    build-essential (~> 2.0)
+  runit (1.5.18)
+    build-essential (>= 0.0.0)
+    yum (~> 3.0)
+    yum-epel (>= 0.0.0)
+  yum (3.5.3)
+  yum-epel (0.6.0)
+    yum (~> 3.0)
+  yum-repoforge (0.5.0)
+    yum (~> 3.0)
+    yum-epel (>= 0.0.0)
