@@ -5,6 +5,7 @@ describe 'bootstrap::setup' do
   let(:chef_run) { ChefSpec::SoloRunner.converge(described_recipe) }
 
   before do
+    stub_command("/usr/local/go/bin/go version | grep \"go1.3 \"").and_return(true)
     ENV['PATTERN_NAME'] = 'test_pattern'
     ENV['PATTERN_URL'] = 'test_url'
     ENV['PATTERN_REVISION'] = 'test_revision'
@@ -42,7 +43,7 @@ describe 'bootstrap::setup' do
   end
 
   it 'install consul' do
-    expect(chef_run).to include_recipe('consul::install_binary')
+    expect(chef_run).to include_recipe('consul::install_source')
   end
 
   it 'install consul service' do
@@ -70,12 +71,6 @@ describe 'bootstrap::setup' do
     expect(chef_run).to_not run_ruby_block('delete consul data')
   end
 
-  it 'stop Consul and delete its data at the end forcely by notification' do
-    r = chef_run.find_resource(:ruby_block, 'stop consul')
-    expect(r).to notify('service[consul]').to(:stop).delayed
-    expect(r).to notify('ruby_block[delete consul data]').to(:run).delayed
-  end
-
   it 'checkout pattern' do
     expect(chef_run).to checkout_git('/opt/cloudconductor/patterns/test_pattern').with(
       repository: 'test_url',
@@ -90,30 +85,14 @@ describe 'bootstrap::setup' do
   end
 
   it 'setup consul services information of the pattern' do
-    allow(Dir).to receive(:[]).and_call_original
-    allow(Dir).to receive(:[]).with(
-      '/opt/cloudconductor/patterns/test_pattern/services/web/**/*'
-    ).and_return(%w(web1 web2))
-    allow(Dir).to receive(:[]).with(
-      '/opt/cloudconductor/patterns/test_pattern/services/ap/**/*'
-    ).and_return(%w(ap1 ap2))
-    allow(Dir).to receive(:[]).with(
-      '/opt/cloudconductor/patterns/test_pattern/services/db/**/*'
-    ).and_return(%w(db1 db2))
-    allow(File).to receive(:file?).and_return(true)
-    allow(IO).to receive(:read).and_call_original
-    allow(IO).to receive(:read).with('web1').and_return('{}')
-    allow(IO).to receive(:read).with('web2').and_return('{}')
-    allow(IO).to receive(:read).with('ap1').and_return('{}')
-    allow(IO).to receive(:read).with('ap2').and_return('{}')
-    allow(IO).to receive(:read).with('db1').and_return('{}')
-    allow(IO).to receive(:read).with('db2').and_return('{}')
-    expect(chef_run).to create_file('/etc/consul.d/web1')
-    expect(chef_run).to create_file('/etc/consul.d/web2')
-    expect(chef_run).to create_file('/etc/consul.d/ap1')
-    expect(chef_run).to create_file('/etc/consul.d/ap2')
-    expect(chef_run).to create_file('/etc/consul.d/db1')
-    expect(chef_run).to create_file('/etc/consul.d/db2')
+    expect(chef_run).to run_ruby_block('install service') 
+    r = chef_run.find_resource(:ruby_block, 'install service')
+    expect(r).to notify('service[consul]').to(:stop).delayed
+    expect(r).to notify('ruby_block[delete consul data]').to(:run).delayed
+  end
+
+  it 'inslall jq' do
+    expect(chef_run).to install_package('jq')
   end
 
   it 'install serverspec' do

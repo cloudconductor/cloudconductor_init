@@ -5,6 +5,7 @@ describe 'bootstrap::configure' do
   let(:chef_run) { ChefSpec::SoloRunner.converge(described_recipe) }
 
   before do
+    stub_command("/usr/local/go/bin/go version | grep \"go1.3 \"").and_return(true)
     allow_any_instance_of(Chef::Recipe).to receive(:optional_patterns).and_return(
       [
         {
@@ -42,23 +43,8 @@ describe 'bootstrap::configure' do
   end
 
   it 'setup consul services information of the pattern' do
-    allow(Dir).to receive(:[]).and_call_original
-    allow(Dir).to receive(:[]).with(
-      '/opt/cloudconductor/patterns/optional1/services/**/*'
-    ).and_return(%w(all1 all2))
-    allow(Dir).to receive(:[]).with(
-      '/opt/cloudconductor/patterns/optional2/services/**/*'
-    ).and_return(%w(all3 all4))
-    allow(File).to receive(:file?).and_return(true)
-    allow(IO).to receive(:read).and_call_original
-    allow(IO).to receive(:read).with('all1').and_return('{}')
-    allow(IO).to receive(:read).with('all2').and_return('{}')
-    allow(IO).to receive(:read).with('all3').and_return('{}')
-    allow(IO).to receive(:read).with('all4').and_return('{}')
-    expect(chef_run).to create_file('/etc/consul.d/all1')
-    expect(chef_run).to create_file('/etc/consul.d/all2')
-    expect(chef_run).to create_file('/etc/consul.d/all3')
-    expect(chef_run).to create_file('/etc/consul.d/all4')
+    expect(chef_run).to run_ruby_block('install optional1 services')
+    expect(chef_run).to run_ruby_block('install optional2 services')
   end
 
   it 'reload consul' do
