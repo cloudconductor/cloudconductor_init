@@ -21,7 +21,7 @@ class ActionRunner
       if system("cd #{bin_dir}; /bin/sh ./configure.sh")
         logger.info('pre-configure executed successfully.')
       else
-        logger.error("pre-configure failed. configure.sh returns #{$?}.")
+        logger.error("pre-configure failed. configure.sh returns #{$CHILD_STATUS}.")
         exit 1
       end
     end
@@ -30,7 +30,7 @@ class ActionRunner
       if system("cd #{pattern_dir}; /bin/sh ./event_handler.sh #{role} #{event}")
         logger.info("#{event} event executed on #{File.basename(pattern_dir)} successfully")
       else
-        logger.error("#{event} event failed on #{File.basename(pattern_dir)}. returns #{$?}.")
+        logger.error("#{event} event failed on #{File.basename(pattern_dir)}. returns #{$CHILD_STATUS}.")
         exit 1
       end
     end

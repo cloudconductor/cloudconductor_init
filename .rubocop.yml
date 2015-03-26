@@ -2,21 +2,25 @@ AllCops:
   Exclude:
     - patterns/**/*
     - vendor/bundle/**/*
-
+    - bootstrap/metadata.rb
+    - Guardfile
 LineLength:
-  Max: 130
-
+  Max: 160
 MethodLength:
-  Max: 20
-
-AsciiComments:
-  Enabled: false
-
+  Max: 30
+ClassLength:
+  Max: 160
+CyclomaticComplexity:
+  Max: 10
+PerceivedComplexity:
+  Max: 10
+AbcSize:
+  Max: 40
 Documentation:
   Enabled: false
 
-Style/RegexpLiteral:
+# TODO: enable later
+Style/EachWithObject:
   Enabled: false
-
-Style/SingleSpaceBeforeFirstArg:
+Style/ClassVars:
   Enabled: false
