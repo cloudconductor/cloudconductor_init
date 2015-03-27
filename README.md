@@ -14,7 +14,7 @@ Requirements
 Prerequisites
 -------------
 
-- cloudconductor (>= 0.3)
+- cloudconductor (>= 1.0)
 
 Copyright and License
 =====================
