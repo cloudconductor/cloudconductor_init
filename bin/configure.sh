@@ -18,6 +18,9 @@ source /opt/cloudconductor/lib/common.sh
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
 
+log_info "update consul ACL for service synchronization."
+enable_service_acl
+
 cd ${CONFIG_DIR}
 log_info "execute berks."
 berks vendor ${TMP_DIR}/cookbooks

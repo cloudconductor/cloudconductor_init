@@ -12,10 +12,12 @@ optional_patterns.each do |pattern|
     to "/opt/cloudconductor/patterns/#{pattern[:pattern_name]}/logs"
   end
 
-  Dir["/opt/cloudconductor/patterns/#{pattern[:pattern_name]}/services/**/*"].each do |service_file|
-    file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
-      content IO.read(service_file)
-    end if File.file?(service_file)
+  ruby_block "install #{pattern[:pattern_name]} services" do
+    block do
+      Dir["/opt/cloudconductor/patterns/#{pattern[:pattern_name]}/services/all/**/*"].each do |service_file|
+        FileUtils.cp(service_file, "/etc/consul.d/#{Pathname.new(service_file).basename}")
+      end
+    end
   end
 end
 

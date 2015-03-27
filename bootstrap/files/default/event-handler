@@ -1,0 +1,73 @@
+#!/bin/sh
+# Copyright 2014 TIS Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+source /opt/cloudconductor/lib/common.sh
+
+EVENT_HANDLER_DIR="`cd $(dirname $0) && pwd`"
+LOG_FILE="${LOG_DIR}/event-handler.log"
+EVENT="$1"
+
+if [ -z "${EVENT}" ]; then
+  log_info "a config-load trigger was ignored."
+  exit 0
+fi
+
+STDIN_DATA="`cat /dev/stdin`"
+EVENT_ID=`echo "${STDIN_DATA}" | jq '.[] | .ID' | sed -e 's/[^"]*"\([^"]*\)".*/\1/'`
+if [ -z "${EVENT_ID}" ]; then
+  log_info "a config-load trigger was ignored."
+  exit 0
+fi
+
+if [ "${EVENT}" != "setup" ]; then
+  START_DATETIME="`date --iso-8601=seconds`"
+  write_event_handler_result "${EVENT_ID}" "${EVENT}" "null" "${START_DATETIME}" "null" "null"
+  ROLE=`read_config_value "ROLE"`
+  CONSUL_SECRET_KEY=`read_config_value "CONSUL_SECRET_KEY"`
+else
+  write_config_value "CONSUL_SECRET_KEY" "${CONSUL_SECRET_KEY}"
+fi
+export CONSUL_SECRET_KEY
+export ROLE
+export EVENT
+export EVENT_ID
+
+PAYLOAD=`echo "${STDIN_DATA}" | jq '.[] | .Payload'`
+if [ "${PAYLOAD}" != "null" ]; then
+  PAYLOAD=`echo "${PAYLOAD}" | sed -e 's/[^"]*"\([^"]*\)".*/\1/' | base64 -d`
+  if [ "${CONSUL_SECRET_KEY}" != "${PAYLOAD}" ]; then
+    log_info "event token did not match. ignored."
+    exit 0
+  fi
+fi
+
+log_info "event-handler has started with: ROLE[${ROLE}], EVENT[${EVENT}], EVENT_ID[${EVENT_ID}]"
+
+export PATH=`chefdk_path`:${PATH}
+action_runner_result_log="`ruby ${EVENT_HANDLER_DIR}/action_runner.rb ${ROLE} ${EVENT} 2>&1`"
+action_runner_result=$?
+if [ ${action_runner_result} -ne 0 ]; then
+  log_error "finished abnormally. action_runner has failed. ROLE[${ROLE}], EVENT[${EVENT}],  EVENT_ID[${EVENT_ID}]"
+  log_error "${action_runner_result_log}"
+else
+  log_info "finished successfully. ROLE[${ROLE}], EVENT[${EVENT}], EVENT_ID[${EVENT_ID}]"
+fi
+
+if [ "${EVENT}" != "setup" ]; then
+  END_DATETIME="`date --iso-8601=seconds`"
+  write_event_handler_result "${EVENT_ID}" "${EVENT}" "${action_runner_result}" "${START_DATETIME}" "${END_DATETIME}" "${action_runner_result_log}"
+fi
+
+exit ${action_runner_result}

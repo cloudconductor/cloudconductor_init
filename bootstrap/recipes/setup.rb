@@ -1,42 +1,74 @@
 include_recipe 'yum-epel'
 include_recipe 'iptables::disabled'
-include_recipe 'serf'
 
 pattern_name = node['cloudconductor']['pattern_name']
+event_handlers_dir = node['cloudconductor']['event_handlers_dir']
 
-# override template
-r = resources(template: '/etc/init.d/serf')
-r.cookbook 'bootstrap'
-
-# install event-handler
-serf_helper = SerfHelper.new self
-template node['serf']['agent']['event_handlers'].first do
-  source 'event-handler.erb'
+# create directory for Consul event-handler
+directory event_handlers_dir do
+  owner 'root'
+  group 'root'
   mode 0755
-  variables event_handlers_directory: serf_helper.getEventHandlersDirectory
+  recursive true
+  action :create
 end
 
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/action_runner.rb" do
+# install event-handler
+cookbook_file File.join(event_handlers_dir, 'event-handler') do
+  source 'event-handler'
+  mode 0755
+end
+
+cookbook_file File.join(event_handlers_dir, 'action_runner.rb') do
   source 'action_runner.rb'
   mode 0755
 end
 
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_chef_status.sh" do
-  source 'check_chef_status.sh'
-  mode 0755
+# create self-signed certificate for Consul HTTPS API
+consul_ssl_strength = node['cloudconductor']['consul']['ssl_strength']
+consul_ssl_serial = node['cloudconductor']['consul']['ssl_serial']
+consul_ssl_days = node['cloudconductor']['consul']['ssl_days']
+consul_ssl_subj = node['cloudconductor']['consul']['ssl_subj']
+consul_ssl_cert = node['cloudconductor']['consul']['ssl_cert']
+consul_ssl_key = node['cloudconductor']['consul']['ssl_key']
+bash 'create_self_signed_cerficiate' do
+  code <<-EOH
+    openssl req -new -newkey rsa:#{consul_ssl_strength} -sha1 -x509 -nodes \
+      -set_serial #{consul_ssl_serial} \
+      -days #{consul_ssl_days} \
+      -subj "#{consul_ssl_subj}" \
+      -out "#{consul_ssl_cert}" \
+      -keyout "#{consul_ssl_key}"
+  EOH
 end
 
-cookbook_file "#{serf_helper.getEventHandlersDirectory}/check_serverspec.sh" do
-  source 'check_serverspec.sh'
-  mode 0755
-end
-
-include_recipe 'consul::install_binary'
+include_recipe 'consul::install_source'
 include_recipe 'consul::_service'
 
 # override Consul service template
 r = resources(template: '/etc/init.d/consul')
 r.cookbook 'bootstrap'
+
+# install Consul watches configuration file
+watches = []
+node['cloudconductor']['events'].each do |event|
+  watch = {
+    'type' => 'event',
+    'name' => event,
+    'handler' => "#{File.join(event_handlers_dir, 'event-handler')} #{event}"
+  }
+  watches << watch
+end
+watches_configuration = {
+  'watches' => watches
+}
+template File.join(node['consul']['config_dir'], 'watches.json') do
+  source 'watches.json.erb'
+  mode 0755
+  variables(
+    watches_configuration: watches_configuration
+  )
+end
 
 # delete 70-persistent-net.rules extra lines
 ruby_block 'delete 70-persistent-net.rules extra line' do
@@ -58,14 +90,6 @@ ruby_block 'delete consul data' do
   action :nothing
 end
 
-# stop Consul and delete its data at the end forcely by notification
-ruby_block 'stop consul' do
-  block do
-  end
-  notifies :stop, 'service[consul]', :delayed
-  notifies :run, 'ruby_block[delete consul data]', :delayed
-end
-
 # checkout pattern
 git "/opt/cloudconductor/patterns/#{pattern_name}" do
   repository "#{node['cloudconductor']['pattern_url']}"
@@ -79,14 +103,24 @@ link "/opt/cloudconductor/logs/#{pattern_name}" do
 end
 
 # setup consul services information of the pattern
-roles = node['serf']['agent']['tags']['role'].split(',')
-roles << 'all'
-roles.each do |role|
-  Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|
-    file "/etc/consul.d/#{Pathname.new(service_file).basename}" do
-      content IO.read(service_file)
-    end if File.file?(service_file)
+ruby_block 'install service' do
+  block do
+    roles = node['cloudconductor']['role'].split(',')
+    roles << 'all'
+    roles.each do |role|
+      Dir["/opt/cloudconductor/patterns/#{pattern_name}/services/#{role}/**/*"].each do |service_file|
+        FileUtils.cp(service_file, "/etc/consul.d/#{Pathname.new(service_file).basename}")
+      end
+    end
   end
+  notifies :stop, 'service[consul]', :delayed
+  notifies :run, 'ruby_block[delete consul data]', :delayed
+end
+
+# install jq
+package 'jq' do
+  action :install
+  options '--enablerepo=epel'
 end
 
 # install serverspec

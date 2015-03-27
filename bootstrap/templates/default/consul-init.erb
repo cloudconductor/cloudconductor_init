@@ -15,25 +15,49 @@
 #                       * Multi Datacenter
 ### END INIT INFO
 
+if [ -f <%= node['consul']['etc_config_dir'] %> ]; then
+. <%= node['consul']['etc_config_dir'] %>
+fi
+
+export GOMAXPROCS=${GOMAXPROCS}
+
 # load config
 if [ -f /opt/cloudconductor/config ]; then
   source /opt/cloudconductor/config
 fi
 
-if [ -n "${SERF_JOIN_ADDRESS}" ]; then
-  if [ -n "`ip addr | grep " ${SERF_JOIN_ADDRESS}/"`" ]; then
-    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
-  else
-    CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -join ${SERF_JOIN_ADDRESS} -config-dir <%= @config_dir %>"
+# generate consul command from metadata
+if [ -n "${STACK_NAME}" -a -n "${RESOURCE_NAME}" ]; then
+  CLUSTER_ADDRESSES=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} --region ${REGION} | jq .ClusterAddresses | sed -e 's/"\([^"]*\)"/\1/'`
+  FRONTEND=`/opt/aws/bin/cfn-get-metadata -s ${STACK_NAME} -r ${RESOURCE_NAME} --region ${REGION} | jq .Frontend | sed -e 's/"\([^"]*\)"/\1/'`
+
+  JOIN_ADDRESSES=""
+  BOOTSTRAP_EXPECT=0
+
+  IFS=','
+  for JOIN_ADDRESS in $CLUSTER_ADDRESSES;
+  do
+    BOOTSTRAP_EXPECT=`expr $BOOTSTRAP_EXPECT + 1`
+    JOIN_ADDRESSES="${JOIN_ADDRESSES} -join ${JOIN_ADDRESS}"
+  done
+
+  CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 ${JOIN_ADDRESSES}"
+
+  if [ -n "$FRONTEND" -a "$FRONTEND" = "true" ]; then
+    CMD="$CMD -bootstrap-expect ${BOOTSTRAP_EXPECT}"
   fi
+
+  CMD="$CMD -config-dir <%= node['consul']['config_dir'] %>"
 else
-  CMD="<%= @consul_binary %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= @config_dir %>"
+  CMD="<%= Chef::Consul.active_binary(node) %> agent -server -client 0.0.0.0 -bootstrap -config-dir <%= node['consul']['config_dir'] %>"
 fi
 
 NAME="consul"
 
 PIDFILE="/var/run/$NAME.pid"
 LOGFILE="/var/log/$NAME.log"
+
+CMD="no_proxy=0.0.0.0,\${no_proxy} nohup $CMD"
 
 get_pid() {
     cat "$PIDFILE"
@@ -49,8 +73,7 @@ case "$1" in
         echo "$NAME already running"
     else
         echo "Starting $NAME"
-        $CMD >> "$LOGFILE" &
-        echo $! > "$PIDFILE"
+        su -l `id -u -n` -c "$CMD >> \"$LOGFILE\" 2>&1 & echo \$! > \"$PIDFILE\""
         if ! is_running; then
             echo "Unable to start $NAME, see $LOGFILE"
             exit 1
@@ -61,7 +84,7 @@ case "$1" in
     if is_running; then
         echo -n "Stopping $NAME..."
         kill `get_pid`
-        for i in {1..10}
+        for i in 1 2 3 4 5 6 7 8 9 10
         do
             if ! is_running; then
                 break
