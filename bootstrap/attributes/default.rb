@@ -10,7 +10,7 @@ default['cloudconductor']['consul']['ssl_cert'] = '/etc/pki/tls/certs/consul.crt
 default['cloudconductor']['consul']['ssl_key'] = '/etc/pki/tls/private/consul.key'
 
 # override consul attributes
-default['consul']['version'] = '0.4.1'
+default['consul']['version'] = '0.5.0'
 default['consul']['service_mode'] = 'server'
 default['consul']['service_user'] = 'root'
 default['consul']['service_group'] = 'root'

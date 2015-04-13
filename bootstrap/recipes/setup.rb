@@ -42,7 +42,7 @@ bash 'create_self_signed_cerficiate' do
   EOH
 end
 
-include_recipe 'consul::install_source'
+include_recipe 'bootstrap::install_consul_binary'
 include_recipe 'consul::_service'
 
 # override Consul service template
