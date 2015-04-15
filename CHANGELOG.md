@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-## version 1.0.1 (2015/04/15)
+## version 1.0.1 (2015/04/16)
 
   - Fix consul version to be able to run properly.
   - Move event log nodes to under event nodes in consul key-value store to simplify event nodes structure.
