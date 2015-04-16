@@ -43,7 +43,7 @@ describe 'bootstrap::setup' do
   end
 
   it 'install consul' do
-    expect(chef_run).to include_recipe('consul::install_source')
+    expect(chef_run).to include_recipe('bootstrap::install_consul_binary')
   end
 
   it 'install consul service' do
