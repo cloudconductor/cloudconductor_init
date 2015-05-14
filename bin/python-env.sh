@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
-script_dir=$(cd $(dirname $0) && pwd)
-root_dir=$(cd $(dirname $0)/..;pwd)
+#script_dir=$(cd $(dirname $0) && pwd)
+#root_dir=$(cd $(dirname $0)/..;pwd)
+root_dir=$(pwd)
 
 if ! which python ; then
   yum install -y python
