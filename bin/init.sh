@@ -46,13 +46,14 @@ else
 fi
 
 cd ${ROOT_DIR}
-log_info "execute chef-solo."
-chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+log_info "execute first setup."
+#chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
+/bin/sh ./bootstrap/bin/setup.sh
 chefsolo_result=$?
 if [ ${chefsolo_result} -eq 0 ]; then
-  log_info "chef-solo has finished successfully."
+  log_info "first-setup has finished successfully."
 else
-  log_error "chef-solo has finished abnormally."
+  log_error "first-setup has finished abnormally."
   exit -1
 fi
 

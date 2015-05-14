@@ -1,0 +1,34 @@
+{
+  "watches": [
+    {
+      "type": "event",
+      "name": "setup",
+      "handler": "/opt/consul/event_handlers/event-handler setup"
+    },
+    {
+      "type": "event",
+      "name": "configure",
+      "handler": "/opt/consul/event_handlers/event-handler configure"
+    },
+    {
+      "type": "event",
+      "name": "deploy",
+      "handler": "/opt/consul/event_handlers/event-handler deploy"
+    },
+    {
+      "type": "event",
+      "name": "backup",
+      "handler": "/opt/consul/event_handlers/event-handler backup"
+    },
+    {
+      "type": "event",
+      "name": "restore",
+      "handler": "/opt/consul/event_handlers/event-handler restore"
+    },
+    {
+      "type": "event",
+      "name": "spec",
+      "handler": "/opt/consul/event_handlers/event-handler spec"
+    }
+  ]
+}

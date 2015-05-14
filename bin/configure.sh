@@ -31,7 +31,8 @@ else
 fi
 
 log_info "execute configure.rb."
-ruby ${BIN_DIR}/configure.rb
+#ruby ${BIN_DIR}/configure.rb
+python ${ROOT_DIR}/bootstrap/lib/regist_server.py
 if [ $? -eq 0 ]; then
   log_info "configure.rb has finished successfully."
 else
@@ -41,7 +42,8 @@ fi
 
 cd ${ROOT_DIR}
 log_info "execute chef-solo."
-chef-solo -j ${CONFIG_DIR}/node_configure.json -c ${CONFIG_DIR}/solo.rb
+#chef-solo -j ${CONFIG_DIR}/node_configure.json -c ${CONFIG_DIR}/solo.rb
+/bin/sh ${ROOT_DIR}/bootstrap/bin/configure.sh
 chefsolo_result=$?
 if [ ${chefsolo_result} -eq 0 ]; then
   log_info "chef-solo has finished successfully."

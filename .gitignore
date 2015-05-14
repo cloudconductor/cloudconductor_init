@@ -1,0 +1,6 @@
+config
+*.swp
+logs/
+patterns/**/
+tmp/
+.venv/
