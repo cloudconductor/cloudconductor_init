@@ -4,3 +4,5 @@ logs/
 patterns/**/
 tmp/
 .venv/
+.kitchen/
+.kitchen.local.yml

@@ -1,0 +1,25 @@
+#! /bin/sh
+
+PROGNAME=$(basename $0)
+PG_PATH=$(cd $(dirname $0); pwd)
+
+usage() {
+  echo "Usage: $PROGNAME <command> ..."
+  echo
+  echo "command:"
+  echo "  kitchen"
+}
+
+for OPT in "$@"
+do
+  case "$OPT" in
+    'kitchen' )
+      shift
+      ${PG_PATH}/bin/kitchen_run.sh $@
+      exit $?
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done

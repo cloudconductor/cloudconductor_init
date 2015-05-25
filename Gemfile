@@ -19,4 +19,6 @@ group :test do
   gem 'spork'
   gem 'guard-spork'
   gem 'factory_girl'
+  gem "test-kitchen"
+  gem "kitchen-docker"
 end
