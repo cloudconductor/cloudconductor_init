@@ -1,0 +1,66 @@
+---
+driver:
+  name: docker
+
+provisioner:
+  name: shell
+
+platforms:
+  - name: centos-6
+    driver:
+      images: centos:centos6
+      dockerfile: test/platforms/centos-6/Dockerfile
+  - name: centos-7
+    driver:
+      images: centos:centos7
+      dockerfile: test/platforms/centos-6/Dockerfile
+
+suites:
+  - name: pre-build
+    run_list:
+      - ./bin/init.sh
+    attributes:
+      cc_pattern: tomcat_pattern
+      cc_revision: develop
+      cc_role: web
+      cc_token:
+
+  - name: pre-build_consul_acl
+    run_list:
+      - ./bin/init.sh
+    attributes:
+      cc_pattern: tomcat_pattern
+      cc_revision: develop
+      cc_role: ap
+      cc_token: UWHlGY3fjIqpcDxZdVC4yw==
+
+  - name: pre-configure
+    run_list:
+      - ./bin/init.sh
+      - ./test/bin/pre_configure.sh
+    attributes:
+      cc_pattern: tomcat_pattern
+      cc_revision: develop
+      cc_role: db
+      cc_token:
+
+  - name: pre-configure_consul_acl
+    run_list:
+      - ./bin/init.sh
+      - ./test/bin/pre_configure.sh
+    attributes:
+      cc_pattern: tomcat_cluster_pattern
+      cc_revision: develop
+      cc_role: web,ap
+      cc_token: UWHlGY3fjIqpcDxZdVC4yw==
+
+  - name: pre-configure_optional
+    run_list:
+      - ./bin/init.sh
+      - ./test/bin/set_attributes.sh
+      - ./test/bin/pre_configure.sh
+    attributes:
+      cc_pattern: tomcat_pattern
+      cc_revision: develop
+      cc_role: db
+      cc_token: UWHlGY3fjIqpcDxZdVC4yw==

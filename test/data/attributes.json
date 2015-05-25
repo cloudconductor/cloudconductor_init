@@ -1,0 +1,30 @@
+{
+  "cloudconductor": {
+    "patterns": {
+      "tomcat_pattern": {
+        "name": "tomcat_pattern",
+        "type": "platform",
+        "user_attributes": {}
+      },
+      "amanda_pattern": {
+        "name": "amanda_pattern",
+        "type": "optional",
+        "protocol": "git",
+        "url": "https://github.com/cloudconductor-patterns/amanda_pattern.git",
+        "revision": "develop",
+        "user_attributes": {}
+      },
+      "zabbix_pattern": {
+        "name": "zabbix_pattern",
+        "type": "optional",
+        "protocol": "git",
+        "url": "https://github.com/cloudconductor-patterns/zabbix_pattern.git",
+        "revision": "develop",
+        "user_attributes": {}
+      }
+    },
+    "applications": {},
+    "ap_host": "",
+    "db_host": ""
+  }
+}
