@@ -251,8 +251,8 @@ case "$ki_cmd" in
       if [ "${last_action}" == "null" -o "${last_action}" == "create" ] ; then
         func_converge $instance $@ || exit $?
 
-        kitchen setup ${ki_instance} $ki_param || exit $?
       fi
+      kitchen setup ${ki_instance} $ki_param || exit $?
     done
 
     ;;
@@ -266,8 +266,8 @@ case "$ki_cmd" in
       if [ "${last_action}" == "null" -o "${last_action}" == "create" ] ; then
         func_converge $instance $@ || exit $?
 
-        kitchen verify ${instance} $ki_param || exit $?
       fi
+      kitchen verify ${instance} $ki_param || exit $?
     done
 
     ;;
