@@ -28,7 +28,7 @@ git clone https://github.com/cloudconductor/cloud_conductor_utils.git
 cd cloud_conductor_utils
 rake build
 cd pkg
-gem install ./*.gem
+chef gem install ./*.gem
 if [ $? -eq 0 ]; then
   log_info "install cloud_conductor_utils has finished successfully."
 else
@@ -38,7 +38,7 @@ fi
 
 cd ${CONFIG_DIR}
 log_info "execute berks."
-berks vendor ${TMP_DIR}/cookbooks
+#berks vendor ${TMP_DIR}/cookbooks
 if [ $? -eq 0 ]; then
   log_info "berks has finished successfully."
 else

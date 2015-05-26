@@ -57,7 +57,7 @@ log_info "event-handler has started with: ROLE[${ROLE}], EVENT[${EVENT}], EVENT_
 
 export PATH=`chefdk_path`:${PATH}
 #action_runner_result_log="`ruby ${EVENT_HANDLER_DIR}/action_runner.rb ${ROLE} ${EVENT} 2>&1`"
-action_runner_result_log="`${EVENT_HANDLER_DIR}/action_runner.sh ${ROLE} ${EVENT} 2>&1`"
+action_runner_result_log="`bash -x ${EVENT_HANDLER_DIR}/action_runner.sh ${ROLE} ${EVENT} 2>&1`"
 action_runner_result=$?
 if [ ${action_runner_result} -ne 0 ]; then
   log_error "finished abnormally. action_runner has failed. ROLE[${ROLE}], EVENT[${EVENT}],  EVENT_ID[${EVENT_ID}]"

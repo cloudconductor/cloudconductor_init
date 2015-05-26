@@ -1,6 +1,8 @@
 #!/bin/sh
 
 source /opt/cloudconductor/lib/common.sh
+source /opt/cloudconductor/lib/python-env.sh
+
 LOG_FILE="${LOG_DIR}/event-handler.log"
 
 script_dir=$(cd $(dirname $0) && pwd)
@@ -52,7 +54,11 @@ if [ "$event" == "configure" ] ; then
   sleep 30
 fi
 
-patterns=(`python ${script_dir}/patterns.py ${patterns_dir} | jq -r 'sort_by(.metadata.type != "platform") | .[] | .path'`)
+patterns=(`python_exec ${script_dir}/patterns.py ${patterns_dir} | jq -r 'sort_by(.metadata.type != "platform") | .[] | .path'`)
+status=$?
+if [ ${status} -ne 0 ]; then
+  exit ${status}
+fi
 
 for pattern_dir in ${patterns[@]}
 do

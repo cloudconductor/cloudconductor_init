@@ -14,6 +14,7 @@
 # limitations under the License.
 
 source /opt/cloudconductor/lib/common.sh
+source /opt/cloudconductor/lib/python-env.sh
 
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
@@ -23,7 +24,7 @@ enable_service_acl
 
 cd ${CONFIG_DIR}
 log_info "execute berks."
-berks vendor ${TMP_DIR}/cookbooks
+#berks vendor ${TMP_DIR}/cookbooks
 if [ $? -eq 0 ]; then
   log_info "berks has finished successfully."
 else
@@ -32,7 +33,7 @@ fi
 
 log_info "execute configure.rb."
 #ruby ${BIN_DIR}/configure.rb
-python ${ROOT_DIR}/bootstrap/lib/regist_server.py
+python_exec ${ROOT_DIR}/bootstrap/lib/regist_server.py
 if [ $? -eq 0 ]; then
   log_info "configure.rb has finished successfully."
 else

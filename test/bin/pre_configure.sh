@@ -7,6 +7,12 @@ source ${CHEF_ENV_FILE}
 
 service consul start
 
-sleep 5
+sleep 10
 
-/opt/cloudconductor/bin/configure.sh
+output="$(bash -x /opt/cloudconductor/bin/configure.sh)"
+status=$?
+
+if [ $status -ne 0 ] ; then
+  echo $output
+  exit $status
+fi

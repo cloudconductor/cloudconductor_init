@@ -48,13 +48,20 @@ openssl req -new -newkey rsa:2048 -sha1 -x509 -nodes \
   -keyout "${consul_ssl_key}" \
 || exit $?
 
+package install libtool || exit $?
+package install autoconf || exit $?
+package install unzip || exit $?
+package install rsync || exit $?
+package install make || exit $?
+package install gcc || exit $?
+
 # install Consul
 remote_file https://dl.bintray.com/mitchellh/consul/${consul_version}.zip \
   ${tmp_dir}/${consul_version}.zip \
 || exit $?
 
-unzip -f -d ${consul_install_dir} ${tmp_dir}/${consul_version}.zip || exit $?
-chmod 755 ${consul_install_dir}/consul
+unzip -o -d ${consul_install_dir} ${tmp_dir}/${consul_version}.zip || exit $?
+chmod 755 ${consul_install_dir}/consul || exit $?
 
 
 directory ${consul_data_dir} root:root 755 || exit $?
@@ -77,7 +84,7 @@ file_copy ${conf_dir}/consul_default.json ${consul_config_dir}/default.json root
 if [ "${CONSUL_SECRET_KEY}" != "" ] ; then
   package install jq --enablerepo=epel || exit $?
 
-  jq ". + {acl_datacenter: .datacenter, acl_default_policy: \"deny\", acl_master_token: \"${CONSUL_SECRET_KEY}\", acl_token: \"anonymous\"}" ${consul_config_dir}/default.json > ${tmp_dir}/consul_default.json
+  jq ". + {acl_datacenter: .datacenter, acl_default_policy: \"deny\", acl_master_token: \"${CONSUL_SECRET_KEY}\", acl_token: \"anonymous\", encrypt: \"${CONSUL_SECRET_KEY}\"}" ${consul_config_dir}/default.json > ${tmp_dir}/consul_default.json
 
   file_copy ${tmp_dir}/consul_default.json ${consul_config_dir}/default.json root:root 644 || exit $?
 fi

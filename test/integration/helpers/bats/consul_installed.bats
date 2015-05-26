@@ -52,7 +52,7 @@ load test_helper
 }
 
 @test "consul action_runner.rb file is exists" {
-  run test -f /opt/consul/event_handlers/action_runner.rb
+  run test -f /opt/consul/event_handlers/action_runner.sh
   assert_success
 }
 

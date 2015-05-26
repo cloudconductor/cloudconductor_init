@@ -23,3 +23,8 @@ RUN yum -y install https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64
 
 RUN touch ./dummy_iptables
 RUN cp ./dummy_iptables /etc/init.d/iptables
+
+# proxy
+RUN echo "export http_proxy=<%= @http_proxy %>" >> /etc/profile.d/proxy.sh
+RUN echo "export https_proxy=<%= @https_proxy %>" >> /etc/profile.d/proxy.sh
+RUN echo "export no_proxy=127.0.0.1,localhost" >> /etc/profile.d/proxy.sh
