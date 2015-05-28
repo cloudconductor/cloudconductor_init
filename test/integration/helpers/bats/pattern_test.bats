@@ -14,9 +14,9 @@ load test_helper
       continue
     fi
 
-    assert_directory_exists /opt/cloudconductor/patterns/${pattern}/logs
+    #assert_directory_exists /opt/cloudconductor/patterns/${pattern}/logs
 
-    assert_directory_exists /opt/cloudconductor/logs/${pattern}/
+    #assert_directory_exists /opt/cloudconductor/logs/${pattern}/
 
     run test -L /opt/cloudconductor/logs/${pattern}
     assert_success

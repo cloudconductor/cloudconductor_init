@@ -14,48 +14,21 @@
 # limitations under the License.
 
 source /opt/cloudconductor/lib/common.sh
+source /opt/cloudconductor/lib/run-base.sh
 
 CONFIG_DIR="${ROOT_DIR}/etc"
 LOG_FILE="${LOG_DIR}/bootstrap.log"
 
-log_info "set chefdk_path."
-echo "export PATH=\$PATH:/opt/chefdk/embedded/bin" > ${CHEF_ENV_FILE}
-export PATH=`chefdk_path`:${PATH}
-
-cd ${TMP_DIR}
-log_info "install cloud_conductor_utils."
-git clone https://github.com/cloudconductor/cloud_conductor_utils.git
-cd cloud_conductor_utils
-rake build
-cd pkg
-chef gem install ./*.gem
-if [ $? -eq 0 ]; then
-  log_info "install cloud_conductor_utils has finished successfully."
-else
-  log_error "install cloud_conductor_utils has finished abnormally."
-  exit -1
-fi
-
-cd ${CONFIG_DIR}
-log_info "execute berks."
-#berks vendor ${TMP_DIR}/cookbooks
-if [ $? -eq 0 ]; then
-  log_info "berks has finished successfully."
-else
-  log_warn "berks has finished abnormally."
-fi
-
 cd ${ROOT_DIR}
-log_info "execute first setup."
-#chef-solo -j ${CONFIG_DIR}/node_setup.json -c ${CONFIG_DIR}/solo.rb
-/bin/sh ./bootstrap/bin/setup.sh
-chefsolo_result=$?
-if [ ${chefsolo_result} -eq 0 ]; then
-  log_info "first-setup has finished successfully."
-else
+log_info "execute first-setup."
+run ./bootstrap/bin/setup.sh
+if [ ${status} -ne 0 ]; then
   log_error "first-setup has finished abnormally."
-  exit -1
+  log_error ${output}
+  echo ${output} >&2
+  exit ${status}
 fi
+log_info "first-setup has finished successfully."
 
 log_info "execute event-handler with setup event."
 CONSUL_SECRET_KEY_BASE64=`echo "${CONSUL_SECRET_KEY}" | base64`

@@ -1,15 +1,22 @@
 #!/bin/sh
+# Copyright 2014-2015 TIS Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 source /opt/cloudconductor/lib/common.sh
-LOG_FILE=${LOG_DIR}/bootstrap_script.log
+source /opt/cloudconductor/lib/run-base.sh
 
-run() {
-  output="$("$@" 2>&1)"
-  status="$?"
-  oldIFS=$IFS
-  IFS=$'\n' lines=($output)
-  IFS=$oldIFS
-}
+LOG_FILE=${LOG_DIR}/bootstrap_script.log
 
 package() {
   action=$1
@@ -104,22 +111,29 @@ git_checkout() {
   log_info "git cloning repo ${repository} to ${path_to_dir}"
 
   if [ "${repository}" != "" ] ; then
-    git clone ${repository} ${path_to_dir}
+    run git clone ${repository} ${path_to_dir}
+    if [ $status -ne 0 ]; then
+      echo $output >&2
+      return $status
+    fi
+
     cd ${path_to_dir}
-    if [ $? -eq 0 ] ; then
-      git checkout master
-      git branch -a | grep deploy && git branch -d deploy
+    status=$?
+    if [ $status -ne 0 ] ; then
+      return $status
+    fi
 
-      if git branch -a | grep ${branch_start_point} ; then
-        git checkout -f -b deploy origin/${branch_start_point}
-        status=$?
-        log_info "git [${path_to_dir}] checked out branch ${branch_start_point} onto deploy."
-      else
-        git checkout -f -b deploy ${branch_start_point}
-        status=$?
-        log_info "git [${path_to_dir}] checked out branch ${branch_start_point} onto deploy."
-      fi
+    run git checkout master
+    git branch -a | grep deploy && git branch -d deploy
 
+    if git branch -a | grep ${branch_start_point} ; then
+      git checkout -f -b deploy origin/${branch_start_point}
+      status=$?
+      log_info "git [${path_to_dir}] checked out branch ${branch_start_point} onto deploy."
+    else
+      git checkout -f -b deploy ${branch_start_point}
+      status=$?
+      log_info "git [${path_to_dir}] checked out branch ${branch_start_point} onto deploy."
     fi
   fi
 }
