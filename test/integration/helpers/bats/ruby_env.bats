@@ -8,8 +8,15 @@ load test_helper
     skip
   fi
 
+  run test -d /opt/chefdk
+  if [ $status -eq 0 ]; then
+    chef_root="/opt/chefdk"
+  else
+    chef_root="/opt/chef"
+  fi
+
   run cat /etc/profile.d/chef.sh
-  assert_equal "${lines[0]}" "export PATH=\$PATH:/opt/chefdk/embedded/bin"
+  assert_equal "${lines[0]}" "export PATH=\$PATH:${chef_root}/embedded/bin"
 }
 
 @test "ruby path is defined" {
@@ -18,6 +25,13 @@ load test_helper
     skip
   fi
 
+  run test -d /opt/chefdk
+  if [ $status -eq 0 ]; then
+    chef_root="/opt/chefdk"
+  else
+    chef_root="/opt/chef"
+  fi
+
   run awk -F: '{print $2}' /etc/profile.d/chef.sh
-  assert_equal "${lines[0]}" "/opt/chefdk/embedded/bin"
+  assert_equal "${lines[0]}" "${chef_root}/embedded/bin"
 }

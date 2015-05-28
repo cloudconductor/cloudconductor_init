@@ -24,7 +24,11 @@ RUN useradd -d /home/<%= @username %> -m -s /bin/bash <%= @username %>
 RUN echo <%= "#{@username}:#{@password}" %> | chpasswd
 RUN echo '<%= @username %> ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+RUN yum -y install make gcc gcc-c++ autoconf
+
 RUN curl -L http://www.opscode.com/chef/install.sh | bash
+ENV PATH ${PATH}:/opt/chef/embedded/bin
+RUN gem install berkshelf
 #RUN yum -y install https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.6.0-1.el6.x86_64.rpm
 
 RUN touch ./dummy_iptables
@@ -41,5 +45,8 @@ RUN echo "export no_proxy=127.0.0.1,localhost" >> /etc/profile.d/proxy.sh
 RUN echo "export http_proxy=<%= @http_proxy %>" >> /etc/wgetrc
 <% if @https_proxy %>
 RUN echo "export https_proxy=<%= @https_proxy %>" >> /etc/wgetrc
+
+RUN git config --global http.proxy <%= @http_proxy %>
+RUN git config --global https.proxy <%= @https_proxy %>
 <% end %>
 <% end %>

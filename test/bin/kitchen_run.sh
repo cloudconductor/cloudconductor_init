@@ -95,8 +95,10 @@ func_converge() {
 
   func_init ${instance} $@
 
+  run_list=( "./lib/chef-ruby-env.sh" )
+
   data_all=$(kitchen diagnose ${instance} | ruby -e "require 'yaml'; require 'json'; puts JSON.pretty_generate YAML.load($<.read)" | jq ".instances.\"${instance}\"")
-  run_list=$(echo ${data_all} | jq '.provisioner.run_list | .[]')
+  run_list+=( $(echo ${data_all} | jq '.provisioner.run_list | .[]'))
   data=($(echo ${data_all} | jq -r '.provisioner.attributes | .cc_pattern, .cc_revision, .cc_role, .cc_token'))
 
   pattern=${data[0]}
@@ -121,7 +123,7 @@ func_converge() {
     echo "export CONSUL_SECRET_KEY=${token}"
   fi
 
-  echo "run_list=(${run_list})"
+  echo "run_list=(${run_list[@]})"
   echo 'for file in ${run_list[@]}'
   echo 'do'
   echo '  bash ${param} ${file}'

@@ -8,6 +8,9 @@ load test_helper
     skip
   fi
 
-  run bash -c "chef gem list | grep serverspec"
+  path=$(awk -F: '{print $2}' /etc/profile.d/chef.sh)
+  lib_path=$(cd ${path}/../lib ; pwd)
+
+  run bash -c "ls -al \"${lib_path}/ruby/gems/2.1.0/gems/\" | grep serverspec"
   assert_success
 }

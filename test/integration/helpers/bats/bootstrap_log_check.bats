@@ -9,5 +9,5 @@ load test_helper
 
 @test "bootstrap.log Error is not found" {
   run grep "ERROR|FATAL" /opt/cloudconductor/logs/bootstrap.log
-  assert_success
+  assert_failure
 }
