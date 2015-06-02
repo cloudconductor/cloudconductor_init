@@ -10,12 +10,27 @@ usage() {
   echo "  kitchen"
 }
 
+py_test() {
+  source ./test/lib/python-env.sh
+  PACKAGE_LIST='./test/unit/python-packages.txt'
+  pyenv_activate
+
+  py.test --pep8 ./
+
+  deactivate
+}
+
 for OPT in "$@"
 do
   case "$OPT" in
     'kitchen' )
       shift
       ${PG_PATH}/bin/kitchen_run.sh $@
+      exit $?
+      ;;
+    'pytest' )
+      shift
+      py_test $@
       exit $?
       ;;
     *)

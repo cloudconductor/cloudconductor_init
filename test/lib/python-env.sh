@@ -17,7 +17,25 @@ if [ "${PACKAGE_LIST}" == "" ]; then
   PACKAGE_LIST='/opt/cloudconductor/python-packages.txt'
 fi
 
-source /opt/cloudconductor/lib/run-base.sh
+run() {
+  [[ ! "$-" =~ e ]] || e=1
+  [[ ! "$-" =~ E ]] || E=1
+  [[ ! "$-" =~ T ]] || T=1
+
+  set +e
+  set +E
+  set +T
+
+  output="$("$@" 2>&1)"
+  status="$?"
+  oldIFS=$IFS
+  IFS=$'\n' lines=($output)
+
+  IFS=$oldIFS
+  [ -z "$e" ] || set -e
+  [ -z "$E" ] || set -E
+  [ -z "$T" ] || set -T
+}
 
 pyenv_activate() {
   work_dir=$(pwd)

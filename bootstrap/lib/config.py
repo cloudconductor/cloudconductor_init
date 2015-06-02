@@ -1,24 +1,29 @@
 # -*- coding: utf-8 -*-
 
-import ConfigParser, os
+import ConfigParser
+import os
 
 ROOT_DIR = '/opt/cloudconductor'
-LOG_DIR = os.path.join( ROOT_DIR, 'logs' )
-PATTERNS_DIR = os.path.join( ROOT_DIR, 'patterns')
-CONFIG_FILE = os.path.join( ROOT_DIR, 'config')
+LOG_DIR = os.path.join(ROOT_DIR, 'logs')
+PATTERNS_DIR = os.path.join(ROOT_DIR, 'patterns')
+CONFIG_FILE = os.path.join(ROOT_DIR, 'config')
 
-if not os.path.exists( LOG_DIR ) :
-    os.mkdir( LOG_DIR )
+if not os.path.exists(LOG_DIR):
+    os.mkdir(LOG_DIR)
 
-LOG_FILE = os.path.join( LOG_DIR, 'bootstrap.log' )
+LOG_FILE = os.path.join(LOG_DIR, 'bootstrap.log')
+
 
 def env(name):
     return os.environ.get(name)
 
+
 def load(path=None):
     return Config(path)
 
+
 class Config:
+
     def __init__(self, path=None):
         self.data = None
         if path is None:
@@ -54,4 +59,3 @@ class Config:
 
     def token_key(self):
         return self.get('CONSUL_SECRET_KEY')
-
