@@ -23,8 +23,10 @@ conf_dir=${root_dir}/conf
 
 tmp_dir=${TMP_DIR}
 if [ "${tmp_dir}" == "" ] ; then
-  tmp_dir=${root_dir}/tmp
-  
+  tmp_dir=$(cd ${root_dir}/..;pwd)/tmp
+  if [ -d ${tmp_dir} ]; then
+    mkdir -p ${tmp_dir}
+  fi
 fi
 
 lib_dir=${root_dir}/lib
