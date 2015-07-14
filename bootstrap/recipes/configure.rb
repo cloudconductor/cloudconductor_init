@@ -24,4 +24,5 @@ end
 # reload consul
 service 'consul' do
   action :reload
+  supports [:reload]
 end
