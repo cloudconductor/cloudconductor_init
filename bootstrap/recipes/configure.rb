@@ -23,5 +23,5 @@ end
 
 # reload consul
 service 'consul' do
-  action :reload
+  action :restart
 end
