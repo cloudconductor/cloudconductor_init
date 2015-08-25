@@ -20,8 +20,3 @@ optional_patterns.each do |pattern|
     end
   end
 end
-
-# reload consul
-service 'consul' do
-  action :reload
-end
